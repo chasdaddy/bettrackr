@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { containerStyle, inputStyle, COLORS } from '../lib/styles';
+import { containerStyle, glassCardStyle, inputStyle, COLORS } from '../lib/styles';
 
 export default function Auth() {
   const [authMode, setAuthMode] = useState('login');
@@ -31,24 +31,25 @@ export default function Auth() {
   const tabBtn = (mode) => ({
     flex: 1,
     padding: '12px',
-    background: authMode === mode ? 'rgba(0, 255, 136, 0.15)' : 'transparent',
+    background: authMode === mode ? 'rgba(0, 255, 136, 0.1)' : 'transparent',
     border: 'none',
     borderBottom: authMode === mode ? `2px solid ${COLORS.green}` : '2px solid transparent',
     color: authMode === mode ? COLORS.green : COLORS.textDimmer,
     cursor: 'pointer',
     fontFamily: 'inherit',
+    transition: 'all 0.3s ease',
+    boxShadow: authMode === mode ? '0 2px 10px rgba(0, 255, 136, 0.15)' : 'none',
   });
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} className="animate-fadeIn">
       <div style={{
+        ...glassCardStyle,
         maxWidth: '400px',
         margin: '80px auto',
         padding: '40px',
-        background: COLORS.bgCard,
-        borderRadius: '12px',
-        border: `1px solid ${COLORS.border}`,
-      }}>
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 255, 136, 0.05)',
+      }} className="animate-float">
         <h1 style={{
           margin: '0 0 10px 0',
           fontSize: '2rem',
@@ -57,6 +58,7 @@ export default function Auth() {
           WebkitTextFillColor: 'transparent',
           letterSpacing: '3px',
           textAlign: 'center',
+          filter: 'drop-shadow(0 0 10px rgba(0, 255, 136, 0.3))',
         }}>
           BETTRACKR
         </h1>
@@ -89,6 +91,7 @@ export default function Auth() {
               color: authError.includes('Check') ? COLORS.green : COLORS.red,
               marginBottom: '15px',
               fontSize: '0.85rem',
+              animation: 'fadeIn 0.3s ease',
             }}>
               {authError}
             </div>
@@ -98,12 +101,14 @@ export default function Auth() {
             padding: '15px',
             background: 'linear-gradient(90deg, #00ff88, #00d4ff)',
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: '6px',
             color: '#000',
             fontFamily: 'inherit',
             fontWeight: 'bold',
             fontSize: '1rem',
             cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0, 255, 136, 0.3)',
+            transition: 'all 0.3s ease',
           }}>
             {authMode === 'login' ? 'LOGIN' : 'CREATE ACCOUNT'}
           </button>

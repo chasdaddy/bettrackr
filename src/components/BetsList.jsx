@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculatePayout } from '../lib/odds';
-import { thStyle, tdStyle, miniBtn, gradientButtonStyle, COLORS } from '../lib/styles';
+import { thStyle, tdStyle, miniBtn, gradientButtonStyle, glassCardStyle, COLORS } from '../lib/styles';
 import BetForm from './BetForm';
 
 const BETS_PER_PAGE = 20;
@@ -83,6 +83,7 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
       <button
         onClick={() => setShowForm(true)}
         style={{ ...gradientButtonStyle, marginBottom: '20px' }}
+        className="animate-slideUp"
       >
         + LOG NEW BET
       </button>
@@ -96,7 +97,7 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
         />
       )}
 
-      <div style={{ background: COLORS.bgDarker, borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ ...glassCardStyle, overflow: 'hidden' }} className="animate-fadeIn">
         {bets.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: COLORS.textDimmer }}>
             No bets yet. Start tracking!
@@ -106,7 +107,7 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
                 <thead>
-                  <tr style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+                  <tr style={{ background: 'rgba(255, 255, 255, 0.04)' }}>
                     <th style={thStyle}>DATE</th>
                     <th style={thStyle}>SPORT</th>
                     <th style={thStyle}>EVENT</th>
@@ -120,7 +121,7 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
                 </thead>
                 <tbody>
                   {paginatedBets.map(bet => (
-                    <tr key={bet.id} style={{ borderBottom: `1px solid ${COLORS.borderLight}` }}>
+                    <tr key={bet.id} className="glass-table-row" style={{ borderBottom: `1px solid ${COLORS.glassBorder}` }}>
                       <td style={tdStyle}>{bet.date}</td>
                       <td style={tdStyle}>{bet.sport}</td>
                       <td style={tdStyle}>{bet.event}</td>
@@ -137,6 +138,7 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
                         ) : (
                           <span style={{
                             color: bet.result === 'win' ? COLORS.green : bet.result === 'loss' ? COLORS.red : COLORS.gold,
+                            textShadow: `0 0 8px ${bet.result === 'win' ? 'rgba(0,255,136,0.3)' : bet.result === 'loss' ? 'rgba(255,68,68,0.3)' : 'rgba(255,215,0,0.3)'}`,
                           }}>
                             {bet.result.toUpperCase()}
                           </span>
@@ -169,7 +171,7 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
                 alignItems: 'center',
                 gap: '15px',
                 padding: '15px',
-                borderTop: `1px solid ${COLORS.borderLight}`,
+                borderTop: `1px solid ${COLORS.glassBorder}`,
               }}>
                 <button
                   onClick={() => setPage(p => Math.max(0, p - 1))}

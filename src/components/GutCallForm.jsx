@@ -1,14 +1,12 @@
-import { inputStyle, cancelButtonStyle, COLORS } from '../lib/styles';
+import { glassCardStyle, inputStyle, cancelButtonStyle, COLORS } from '../lib/styles';
 
 export default function GutCallForm({ newGutCall, setNewGutCall, onSubmit, onCancel }) {
   return (
     <div style={{
-      background: COLORS.bgInput,
-      border: `1px solid ${COLORS.border}`,
-      borderRadius: '8px',
+      ...glassCardStyle,
       padding: '20px',
       marginBottom: '20px',
-    }}>
+    }} className="animate-scaleIn">
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
@@ -46,10 +44,11 @@ export default function GutCallForm({ newGutCall, setNewGutCall, onSubmit, onCan
           border: 'none',
           color: '#000',
           padding: '12px 24px',
-          borderRadius: '4px',
+          borderRadius: '6px',
           cursor: 'pointer',
           fontFamily: 'inherit',
           fontWeight: 'bold',
+          boxShadow: '0 0 10px rgba(0, 212, 255, 0.2)',
         }}>
           SAVE GUT CALL
         </button>

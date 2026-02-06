@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculatePayout } from '../lib/odds';
-import { COLORS } from '../lib/styles';
+import { glassCardStyle, COLORS } from '../lib/styles';
 import GutCallForm from './GutCallForm';
 
 export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
@@ -59,7 +59,7 @@ export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
   return (
     <div>
       <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ color: COLORS.blue, margin: '0 0 10px 0' }}>🧠 Track Your Gut Calls</h3>
+        <h3 style={{ color: COLORS.blue, margin: '0 0 10px 0', textShadow: '0 0 10px rgba(0, 212, 255, 0.2)' }}>🧠 Track Your Gut Calls</h3>
         <p style={{ color: COLORS.textDim, fontSize: '0.85rem', margin: 0 }}>
           Log bets you're considering but not placing. See if your gut was right.
         </p>
@@ -72,14 +72,17 @@ export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
           border: 'none',
           color: '#000',
           padding: '15px 30px',
-          borderRadius: '4px',
+          borderRadius: '6px',
           cursor: 'pointer',
           fontFamily: 'inherit',
           fontSize: '0.9rem',
           fontWeight: 'bold',
           letterSpacing: '1px',
           marginBottom: '20px',
+          boxShadow: '0 4px 15px rgba(0, 212, 255, 0.2)',
+          transition: 'all 0.3s ease',
         }}
+        className="animate-slideUp"
       >
         + LOG GUT CALL
       </button>
@@ -96,22 +99,20 @@ export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
       <div style={{ display: 'grid', gap: '15px' }}>
         {gutCalls.length === 0 ? (
           <div style={{
+            ...glassCardStyle,
             padding: '40px',
             textAlign: 'center',
             color: COLORS.textDimmer,
-            background: COLORS.bgDarker,
-            borderRadius: '8px',
-          }}>
+          }} className="animate-fadeIn">
             No gut calls yet. Start tracking those "almost bet" moments!
           </div>
         ) : (
-          gutCalls.map(gc => (
+          gutCalls.map((gc, index) => (
             <div key={gc.id} style={{
-              background: COLORS.bgCard,
-              border: `1px solid ${gc.actual_result === 'won' ? COLORS.green : gc.actual_result === 'lost' ? COLORS.red : COLORS.border}`,
-              borderRadius: '8px',
+              ...glassCardStyle,
+              border: `1px solid ${gc.actual_result === 'won' ? 'rgba(0, 255, 136, 0.3)' : gc.actual_result === 'lost' ? 'rgba(255, 68, 68, 0.3)' : COLORS.glassBorder}`,
               padding: '20px',
-            }}>
+            }} className={`glass-card animate-slideUp stagger-${Math.min(index + 1, 8)}`}>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -133,24 +134,26 @@ export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
                   {!gc.actual_result ? (
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button onClick={() => resolveGutCall(gc.id, true)} style={{
-                        background: 'rgba(0, 255, 136, 0.2)',
+                        background: 'rgba(0, 255, 136, 0.15)',
                         border: `1px solid ${COLORS.green}`,
                         color: COLORS.green,
                         padding: '8px 16px',
-                        borderRadius: '4px',
+                        borderRadius: '6px',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
+                        transition: 'all 0.2s ease',
                       }}>
                         IT HIT ✓
                       </button>
                       <button onClick={() => resolveGutCall(gc.id, false)} style={{
-                        background: 'rgba(255, 68, 68, 0.2)',
+                        background: 'rgba(255, 68, 68, 0.15)',
                         border: `1px solid ${COLORS.red}`,
                         color: COLORS.red,
                         padding: '8px 16px',
-                        borderRadius: '4px',
+                        borderRadius: '6px',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
+                        transition: 'all 0.2s ease',
                       }}>
                         IT MISSED ✗
                       </button>
@@ -158,14 +161,16 @@ export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
                   ) : (
                     <div style={{
                       padding: '10px 20px',
-                      background: gc.actual_result === 'won' ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 68, 68, 0.1)',
-                      borderRadius: '4px',
+                      background: gc.actual_result === 'won' ? 'rgba(0, 255, 136, 0.08)' : 'rgba(255, 68, 68, 0.08)',
+                      borderRadius: '8px',
                       textAlign: 'center',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
                     }}>
                       {gc.actual_result === 'won' ? (
                         <>
-                          <div style={{ color: COLORS.green, fontWeight: 'bold' }}>IT HIT 😤</div>
-                          <div style={{ color: COLORS.gold, fontSize: '1.2rem', marginTop: '5px' }}>
+                          <div style={{ color: COLORS.green, fontWeight: 'bold', textShadow: '0 0 8px rgba(0, 255, 136, 0.3)' }}>IT HIT 😤</div>
+                          <div style={{ color: COLORS.gold, fontSize: '1.2rem', marginTop: '5px', textShadow: '0 0 8px rgba(255, 215, 0, 0.3)' }}>
                             +${gc.would_have_won?.toFixed(0)} missed
                           </div>
                         </>

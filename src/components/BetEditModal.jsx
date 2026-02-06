@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculatePayout } from '../lib/odds';
-import { inputStyle, COLORS, SPORT_OPTIONS } from '../lib/styles';
+import { inputStyle, glassCardStyle, COLORS, SPORT_OPTIONS } from '../lib/styles';
 
 export default function BetEditModal({ bet, onClose, onSave, showToast }) {
   const [form, setForm] = useState({
@@ -47,27 +47,38 @@ export default function BetEditModal({ bet, onClose, onSave, showToast }) {
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(0, 0, 0, 0.8)',
+      background: 'rgba(0, 0, 0, 0.6)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
       padding: '20px',
     }}
+      className="animate-fadeIn"
       onClick={onClose}
     >
       <div
         style={{
-          background: '#1a1a2e',
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: '12px',
+          ...glassCardStyle,
+          background: 'rgba(26, 26, 46, 0.95)',
           padding: '30px',
           maxWidth: '500px',
           width: '100%',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 212, 255, 0.1)',
         }}
+        className="animate-fadeInScale"
         onClick={e => e.stopPropagation()}
       >
-        <h3 style={{ color: COLORS.blue, margin: '0 0 20px 0', letterSpacing: '1px' }}>EDIT BET</h3>
+        <h3 style={{
+          color: COLORS.blue,
+          margin: '0 0 20px 0',
+          letterSpacing: '1px',
+          textShadow: '0 0 10px rgba(0, 212, 255, 0.3)',
+        }}>
+          EDIT BET
+        </h3>
 
         <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
           <select
@@ -109,19 +120,20 @@ export default function BetEditModal({ bet, onClose, onSave, showToast }) {
             border: 'none',
             color: '#000',
             padding: '12px 24px',
-            borderRadius: '4px',
+            borderRadius: '6px',
             cursor: 'pointer',
             fontFamily: 'inherit',
             fontWeight: 'bold',
+            boxShadow: '0 0 10px rgba(0, 255, 136, 0.2)',
           }}>
             SAVE CHANGES
           </button>
           <button onClick={onClose} style={{
             background: 'transparent',
-            border: `1px solid ${COLORS.border}`,
+            border: `1px solid ${COLORS.glassBorder}`,
             color: COLORS.textDim,
             padding: '12px 24px',
-            borderRadius: '4px',
+            borderRadius: '6px',
             cursor: 'pointer',
             fontFamily: 'inherit',
           }}>

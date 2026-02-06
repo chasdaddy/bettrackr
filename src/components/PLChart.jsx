@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { COLORS } from '../lib/styles';
+import { COLORS, glassCardStyle } from '../lib/styles';
 
 export default function PLChart({ bets }) {
   const data = useMemo(() => {
@@ -24,35 +24,42 @@ export default function PLChart({ bets }) {
 
   return (
     <div style={{
-      background: COLORS.bgCard,
-      border: `1px solid ${COLORS.borderLight}`,
-      borderRadius: '8px',
+      ...glassCardStyle,
       padding: '20px',
-    }}>
-      <h3 style={{ color: COLORS.green, margin: '0 0 15px 0', fontSize: '0.85rem', letterSpacing: '1px' }}>
+    }} className="animate-fadeIn">
+      <h3 style={{
+        color: COLORS.green,
+        margin: '0 0 15px 0',
+        fontSize: '0.85rem',
+        letterSpacing: '1px',
+        textShadow: '0 0 10px rgba(0, 255, 136, 0.3)',
+      }}>
         📈 CUMULATIVE P/L
       </h3>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
           <XAxis
             dataKey="date"
-            stroke="#333"
+            stroke="rgba(255,255,255,0.08)"
             tick={{ fill: '#666', fontSize: 11 }}
             tickLine={false}
           />
           <YAxis
-            stroke="#333"
+            stroke="rgba(255,255,255,0.08)"
             tick={{ fill: '#666', fontSize: 11 }}
             tickLine={false}
             tickFormatter={v => `$${v}`}
           />
           <Tooltip
             contentStyle={{
-              background: '#1a1a2e',
-              border: `1px solid ${COLORS.border}`,
-              borderRadius: '6px',
+              background: 'rgba(26, 26, 46, 0.95)',
+              border: `1px solid ${COLORS.glassBorder}`,
+              borderRadius: '8px',
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.8rem',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
             }}
             labelStyle={{ color: COLORS.textDim }}
             itemStyle={{ color: COLORS.green }}
@@ -64,7 +71,7 @@ export default function PLChart({ bets }) {
             stroke={COLORS.green}
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4, fill: COLORS.green }}
+            activeDot={{ r: 4, fill: COLORS.green, stroke: COLORS.green, strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>
