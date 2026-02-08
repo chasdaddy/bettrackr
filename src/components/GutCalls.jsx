@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculatePayout } from '../lib/odds';
-import { glassCardStyle, COLORS } from '../lib/styles';
+import { Plus, Brain } from 'lucide-react';
 import GutCallForm from './GutCallForm';
 
 export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
@@ -58,33 +58,22 @@ export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
 
   return (
     <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ color: COLORS.blue, margin: '0 0 10px 0', textShadow: '0 0 10px rgba(0, 212, 255, 0.2)' }}>🧠 Track Your Gut Calls</h3>
-        <p style={{ color: COLORS.textDim, fontSize: '0.85rem', margin: 0 }}>
+      <div className="mb-5">
+        <div className="flex items-center gap-2 mb-1">
+          <Brain className="w-5 h-5 text-indigo-400" />
+          <h2 className="text-lg font-bold text-white">Gut Calls</h2>
+        </div>
+        <p className="text-sm text-slate-500">
           Log bets you're considering but not placing. See if your gut was right.
         </p>
       </div>
 
       <button
         onClick={() => setShowForm(true)}
-        style={{
-          background: 'linear-gradient(90deg, #00d4ff, #aa88ff)',
-          border: 'none',
-          color: '#000',
-          padding: '15px 30px',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-          fontSize: '0.9rem',
-          fontWeight: 'bold',
-          letterSpacing: '1px',
-          marginBottom: '20px',
-          boxShadow: '0 4px 15px rgba(0, 212, 255, 0.2)',
-          transition: 'all 0.3s ease',
-        }}
-        className="animate-slideUp"
+        className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg shadow-indigo-900/20 mb-5 animate-slideUp"
       >
-        + LOG GUT CALL
+        <Plus className="w-4 h-4" />
+        Log Gut Call
       </button>
 
       {showForm && (
@@ -96,86 +85,61 @@ export default function GutCalls({ gutCalls, setGutCalls, userId, showToast }) {
         />
       )}
 
-      <div style={{ display: 'grid', gap: '15px' }}>
+      <div className="space-y-3">
         {gutCalls.length === 0 ? (
-          <div style={{
-            ...glassCardStyle,
-            padding: '40px',
-            textAlign: 'center',
-            color: COLORS.textDimmer,
-          }} className="animate-fadeIn">
-            No gut calls yet. Start tracking those "almost bet" moments!
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center animate-fadeIn">
+            <p className="text-slate-500 text-sm">No gut calls yet. Start tracking those "almost bet" moments!</p>
           </div>
         ) : (
           gutCalls.map((gc, index) => (
-            <div key={gc.id} style={{
-              ...glassCardStyle,
-              border: `1px solid ${gc.actual_result === 'won' ? 'rgba(0, 255, 136, 0.3)' : gc.actual_result === 'lost' ? 'rgba(255, 68, 68, 0.3)' : COLORS.glassBorder}`,
-              padding: '20px',
-            }} className={`glass-card animate-slideUp stagger-${Math.min(index + 1, 8)}`}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'start',
-                flexWrap: 'wrap',
-                gap: '10px',
-              }}>
+            <div
+              key={gc.id}
+              className={`bg-slate-900 border rounded-2xl p-4 animate-slideUp ${
+                gc.actual_result === 'won' ? 'border-emerald-500/20' :
+                gc.actual_result === 'lost' ? 'border-rose-500/20' :
+                'border-slate-800'
+              }`}
+            >
+              <div className="flex justify-between items-start flex-wrap gap-3">
                 <div>
-                  <div style={{ color: COLORS.textMuted, fontSize: '0.75rem' }}>{gc.date}</div>
-                  <div style={{ color: '#fff', fontSize: '1.1rem', marginTop: '5px' }}>{gc.event}</div>
-                  <div style={{ color: COLORS.textDim, marginTop: '5px' }}>
-                    {gc.pick} @ {gc.odds > 0 ? `+${gc.odds}` : gc.odds}
+                  <div className="text-xs text-slate-500">{gc.date}</div>
+                  <div className="text-white font-bold mt-1">{gc.event}</div>
+                  <div className="text-sm text-slate-400 mt-1">
+                    {gc.pick} @ <span className="font-mono">{gc.odds > 0 ? `+${gc.odds}` : gc.odds}</span>
                   </div>
-                  <div style={{ color: COLORS.textDimmer, fontSize: '0.85rem', marginTop: '5px' }}>
-                    Would've bet: ${gc.potential_stake}
+                  <div className="text-xs text-slate-500 mt-1">
+                    Would've bet: <span className="font-mono">${gc.potential_stake}</span>
                   </div>
                 </div>
                 <div>
                   {!gc.actual_result ? (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button onClick={() => resolveGutCall(gc.id, true)} style={{
-                        background: 'rgba(0, 255, 136, 0.15)',
-                        border: `1px solid ${COLORS.green}`,
-                        color: COLORS.green,
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        transition: 'all 0.2s ease',
-                      }}>
-                        IT HIT ✓
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => resolveGutCall(gc.id, true)}
+                        className="px-4 py-2 text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition-colors"
+                      >
+                        It Hit
                       </button>
-                      <button onClick={() => resolveGutCall(gc.id, false)} style={{
-                        background: 'rgba(255, 68, 68, 0.15)',
-                        border: `1px solid ${COLORS.red}`,
-                        color: COLORS.red,
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        transition: 'all 0.2s ease',
-                      }}>
-                        IT MISSED ✗
+                      <button
+                        onClick={() => resolveGutCall(gc.id, false)}
+                        className="px-4 py-2 text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl hover:bg-rose-500/20 transition-colors"
+                      >
+                        It Missed
                       </button>
                     </div>
                   ) : (
-                    <div style={{
-                      padding: '10px 20px',
-                      background: gc.actual_result === 'won' ? 'rgba(0, 255, 136, 0.08)' : 'rgba(255, 68, 68, 0.08)',
-                      borderRadius: '8px',
-                      textAlign: 'center',
-                      backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)',
-                    }}>
+                    <div className={`px-4 py-2.5 rounded-xl text-center ${
+                      gc.actual_result === 'won' ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-slate-800 border border-slate-700'
+                    }`}>
                       {gc.actual_result === 'won' ? (
                         <>
-                          <div style={{ color: COLORS.green, fontWeight: 'bold', textShadow: '0 0 8px rgba(0, 255, 136, 0.3)' }}>IT HIT 😤</div>
-                          <div style={{ color: COLORS.gold, fontSize: '1.2rem', marginTop: '5px', textShadow: '0 0 8px rgba(255, 215, 0, 0.3)' }}>
+                          <div className="text-emerald-400 font-bold text-xs">It Hit</div>
+                          <div className="text-amber-400 font-bold text-sm mt-0.5">
                             +${gc.would_have_won?.toFixed(0)} missed
                           </div>
                         </>
                       ) : (
-                        <div style={{ color: COLORS.textDim }}>Missed — good fold</div>
+                        <div className="text-slate-500 text-xs font-medium">Missed — good fold</div>
                       )}
                     </div>
                   )}

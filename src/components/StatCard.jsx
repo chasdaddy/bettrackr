@@ -1,50 +1,22 @@
-import { useState } from 'react';
-import { glassCardStyle, colorGlow, COLORS } from '../lib/styles';
-
 export default function StatCard({ label, value, color, subtext, index = 0 }) {
-  const [hovered, setHovered] = useState(false);
+  const colorClass =
+    color === '#10b981' ? 'text-emerald-400' :
+    color === '#f43f5e' ? 'text-rose-400' :
+    color === '#3b82f6' ? 'text-blue-400' :
+    color === '#f59e0b' ? 'text-amber-400' :
+    color === '#ec4899' ? 'text-pink-400' :
+    color === '#6366f1' ? 'text-indigo-400' :
+    'text-white';
 
   return (
-    <div
-      style={{
-        ...glassCardStyle,
-        padding: '20px',
-        position: 'relative',
-        overflow: 'hidden',
-        ...(hovered ? {
-          background: COLORS.glassBgHover,
-          border: `1px solid ${COLORS.glassBorderHover}`,
-          transform: 'translateY(-2px)',
-          boxShadow: colorGlow(color),
-        } : {}),
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className={`animate-slideUp stagger-${index + 1}`}
-    >
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '2px',
-        background: color,
-        boxShadow: hovered ? `0 0 10px ${color}, 0 0 20px ${color}` : 'none',
-        transition: 'box-shadow 0.3s ease',
-      }} />
-      <div style={{ color: COLORS.textDimmer, fontSize: '0.7rem', letterSpacing: '1px', marginBottom: '8px' }}>
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 animate-slideUp">
+      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
         {label}
       </div>
-      <div style={{
-        color,
-        fontSize: '1.8rem',
-        fontWeight: 'bold',
-        textShadow: hovered ? `0 0 15px ${color}` : 'none',
-        transition: 'text-shadow 0.3s ease',
-      }}>
+      <div className={`text-2xl font-black ${colorClass}`}>
         {value}
       </div>
-      <div style={{ color: COLORS.textDimmest, fontSize: '0.75rem', marginTop: '5px' }}>
+      <div className="text-xs text-slate-500 mt-1">
         {subtext}
       </div>
     </div>

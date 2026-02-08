@@ -1,98 +1,78 @@
 import { COLORS } from '../lib/styles';
 
 export default function ShareCard({ stats }) {
-  const { profit, winRate, wins, losses, roi, streakInfo } = stats;
+  const { profit, winRate, wins, losses, roi, streakInfo, rankInfo, archetype } = stats;
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h2 style={{
-        color: COLORS.green,
-        marginBottom: '30px',
-        letterSpacing: '2px',
-        textShadow: '0 0 15px rgba(0, 255, 136, 0.3)',
-      }}>
-        SHARE YOUR STATS
-      </h2>
+    <div className="text-center">
+      <p className="text-slate-500 text-sm mb-5">Screenshot and share to Twitter, Discord, or Reddit</p>
 
-      <div style={{
-        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)',
-        border: `2px solid ${COLORS.green}`,
-        borderRadius: '12px',
-        padding: '30px',
-        maxWidth: '400px',
-        margin: '0 auto 30px',
-        boxShadow: '0 0 30px rgba(0, 255, 136, 0.2), 0 0 60px rgba(0, 255, 136, 0.1), 0 8px 32px rgba(0, 0, 0, 0.4)',
-        animation: 'fadeInScale 0.3s ease both, float 3s ease-in-out 0.3s infinite',
-      }}>
-        <div style={{
-          fontSize: '1.2rem',
-          color: COLORS.green,
-          letterSpacing: '3px',
-          marginBottom: '20px',
-          textShadow: '0 0 10px rgba(0, 255, 136, 0.4)',
-        }}>
-          BETTRACKR
+      <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 border border-slate-700 rounded-3xl max-w-[480px] mx-auto mb-6 overflow-hidden shadow-2xl shadow-indigo-900/10 relative">
+        {/* Shimmer */}
+        <div className="absolute inset-0 bg-[linear-gradient(105deg,transparent_40%,rgba(99,102,241,0.03)_45%,rgba(99,102,241,0.06)_50%,rgba(99,102,241,0.03)_55%,transparent_60%)] animate-shimmer pointer-events-none" />
+
+        <div className="p-6">
+          {/* Top badges */}
+          <div className="flex justify-between items-start mb-6">
+            {archetype && archetype.id !== 'rookie' ? (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-700 bg-slate-800/50">
+                <span className="text-sm">{archetype.icon}</span>
+                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">{archetype.badge}</span>
+              </div>
+            ) : <div />}
+
+            {rankInfo && (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                <span className="text-sm">{rankInfo.icon}</span>
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">{rankInfo.name}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Logo */}
+          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">BetTrackr</div>
+
+          {/* Profit */}
+          <div className={`text-5xl font-black mb-1 ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            {profit >= 0 ? '+' : ''}${profit.toFixed(0)}
+          </div>
+          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-6">This Year</div>
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Win Rate</div>
+              <div className="text-lg font-black text-white">{winRate}%</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Record</div>
+              <div className="text-lg font-black text-white">{wins}-{losses}</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">ROI</div>
+              <div className="text-lg font-black text-white">{roi}%</div>
+            </div>
+          </div>
+
+          {/* Streak */}
+          {streakInfo.streak > 2 && (
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border mb-5 ${
+              streakInfo.type === 'win'
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+            }`}>
+              <span className="text-sm font-bold">
+                {streakInfo.streak} {streakInfo.type === 'win' ? 'Win' : 'Loss'} Streak
+              </span>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="text-[10px] text-slate-600 tracking-[0.15em] uppercase mt-2">
+            Track your edge at bettrackr.io
+          </div>
         </div>
-        <div style={{
-          fontSize: '2.5rem',
-          fontWeight: 'bold',
-          color: profit >= 0 ? COLORS.green : COLORS.red,
-          marginBottom: '10px',
-          textShadow: `0 0 20px ${profit >= 0 ? 'rgba(0, 255, 136, 0.4)' : 'rgba(255, 68, 68, 0.4)'}`,
-        }}>
-          {profit >= 0 ? '+' : ''}${profit.toFixed(0)}
-        </div>
-        <div style={{ color: COLORS.textDim, marginBottom: '20px' }}>This Year</div>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '15px',
-          marginBottom: '20px',
-        }}>
-          <div>
-            <div style={{ color: COLORS.textDimmer, fontSize: '0.7rem' }}>WIN RATE</div>
-            <div style={{
-              color: COLORS.blue,
-              fontSize: '1.2rem',
-              textShadow: '0 0 8px rgba(0, 212, 255, 0.3)',
-            }}>{winRate}%</div>
-          </div>
-          <div>
-            <div style={{ color: COLORS.textDimmer, fontSize: '0.7rem' }}>RECORD</div>
-            <div style={{ color: '#fff', fontSize: '1.2rem' }}>{wins}-{losses}</div>
-          </div>
-          <div>
-            <div style={{ color: COLORS.textDimmer, fontSize: '0.7rem' }}>ROI</div>
-            <div style={{
-              color: COLORS.gold,
-              fontSize: '1.2rem',
-              textShadow: '0 0 8px rgba(255, 215, 0, 0.3)',
-            }}>{roi}%</div>
-          </div>
-        </div>
-        {streakInfo.streak > 0 && (
-          <div style={{
-            background: 'rgba(0, 255, 136, 0.1)',
-            padding: '10px',
-            borderRadius: '6px',
-            marginBottom: '15px',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-          }}>
-            <span style={{
-              color: streakInfo.type === 'win' ? COLORS.green : COLORS.red,
-              textShadow: `0 0 8px ${streakInfo.type === 'win' ? 'rgba(0, 255, 136, 0.3)' : 'rgba(255, 68, 68, 0.3)'}`,
-            }}>
-              {streakInfo.streak} {streakInfo.type === 'win' ? 'Win' : 'Loss'} Streak {streakInfo.type === 'win' ? '\u{1F525}' : '\u{2744}\u{FE0F}'}
-            </span>
-          </div>
-        )}
-        <div style={{ color: '#444', fontSize: '0.7rem' }}>bettrackr.io</div>
       </div>
-
-      <p style={{ color: COLORS.textDimmer, fontSize: '0.85rem' }}>
-        Screenshot and share to Twitter, Discord, or Reddit
-      </p>
     </div>
   );
 }

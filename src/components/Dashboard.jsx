@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { COLORS, glassCardStyle, colorGlow, inputStyle } from '../lib/styles';
+import { RANK_TIERS } from '../lib/ranks';
+import { COLORS } from '../lib/styles';
+import { Wallet, Pencil, Zap, Trophy, Flame, Target } from 'lucide-react';
 import StatCard from './StatCard';
 
 export default function Dashboard({
@@ -17,12 +19,11 @@ export default function Dashboard({
     profit, roi, winRate, wins, losses,
     totalBets, totalStaked, bestSport,
     whatIfBestSportOnly, totalMissedMoney,
-    streakInfo,
+    streakInfo, rankInfo, archetype, detailedStreaks, psychHooks,
   } = stats;
 
   const [editingBankroll, setEditingBankroll] = useState(false);
   const [bankrollInput, setBankrollInput] = useState(String(startingBankroll || ''));
-  const [bankrollHovered, setBankrollHovered] = useState(false);
 
   const saveBankroll = () => {
     const val = parseFloat(bankrollInput);
@@ -34,114 +35,50 @@ export default function Dashboard({
 
   return (
     <div>
-      {/* Main Stats Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: '20px',
-        marginBottom: '30px',
-      }}>
-        <StatCard
-          index={0}
-          label="TOTAL P/L"
-          value={`${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}`}
-          color={profit >= 0 ? COLORS.green : COLORS.red}
-          subtext={`${roi}% ROI`}
-        />
-        <StatCard
-          index={1}
-          label="WIN RATE"
-          value={`${winRate}%`}
-          color={COLORS.blue}
-          subtext={`${wins}W - ${losses}L`}
-        />
-        <StatCard
-          index={2}
-          label="TOTAL WAGERED"
-          value={`$${totalStaked.toFixed(0)}`}
-          color={COLORS.gold}
-          subtext={`${totalBets} bets`}
-        />
-        <StatCard
-          index={3}
-          label="BEST SPORT"
-          value={bestSport.sport || 'N/A'}
-          color={COLORS.pink}
-          subtext={bestSport.profit ? `${bestSport.profit >= 0 ? '+' : ''}$${bestSport.profit.toFixed(0)}` : '-'}
-        />
+      {/* Stat Cards Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+        <StatCard label="Total P/L" value={`${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}`} color={profit >= 0 ? COLORS.green : COLORS.red} subtext={`${roi}% ROI`} />
+        <StatCard label="Win Rate" value={`${winRate}%`} color={COLORS.blue} subtext={`${wins}W - ${losses}L`} />
+        <StatCard label="Wagered" value={`$${totalStaked.toFixed(0)}`} color={COLORS.gold} subtext={`${totalBets} bets`} />
+        <StatCard label="Best Sport" value={bestSport.sport || 'N/A'} color={COLORS.pink} subtext={bestSport.profit ? `${bestSport.profit >= 0 ? '+' : ''}$${bestSport.profit.toFixed(0)}` : '-'} />
 
         {/* Bankroll card */}
-        <div
-          style={{
-            ...glassCardStyle,
-            padding: '20px',
-            position: 'relative',
-            overflow: 'hidden',
-            ...(bankrollHovered ? {
-              background: COLORS.glassBgHover,
-              border: `1px solid ${COLORS.glassBorderHover}`,
-              transform: 'translateY(-2px)',
-              boxShadow: colorGlow(COLORS.gold),
-            } : {}),
-          }}
-          onMouseEnter={() => setBankrollHovered(true)}
-          onMouseLeave={() => setBankrollHovered(false)}
-          className="animate-slideUp stagger-5"
-        >
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0,
-            height: '2px', background: COLORS.gold,
-            boxShadow: bankrollHovered ? `0 0 10px ${COLORS.gold}, 0 0 20px ${COLORS.gold}` : 'none',
-            transition: 'box-shadow 0.3s ease',
-          }} />
-          <div style={{ color: COLORS.textDimmer, fontSize: '0.7rem', letterSpacing: '1px', marginBottom: '8px' }}>
-            BANKROLL
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 animate-slideUp">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Bankroll</div>
+            <Wallet className="w-3.5 h-3.5 text-amber-400" />
           </div>
           {startingBankroll > 0 && !editingBankroll ? (
             <>
-              <div style={{
-                color: COLORS.gold, fontSize: '1.8rem', fontWeight: 'bold',
-                textShadow: bankrollHovered ? `0 0 15px ${COLORS.gold}` : 'none',
-                transition: 'text-shadow 0.3s ease',
-              }}>
+              <div className="text-2xl font-black text-amber-400">
                 ${(startingBankroll + profit).toFixed(0)}
               </div>
-              <div style={{ color: COLORS.textDimmest, fontSize: '0.75rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Started: ${startingBankroll.toFixed(0)}
-                <button onClick={() => { setEditingBankroll(true); setBankrollInput(String(startingBankroll)); }} style={{
-                  background: 'transparent', border: 'none', color: COLORS.textDimmer,
-                  cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.7rem', textDecoration: 'underline',
-                }}>
-                  edit
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-slate-500">Start: ${startingBankroll.toFixed(0)}</span>
+                <button
+                  onClick={() => { setEditingBankroll(true); setBankrollInput(String(startingBankroll)); }}
+                  className="text-slate-600 hover:text-slate-400 transition-colors"
+                >
+                  <Pencil className="w-3 h-3" />
                 </button>
-              </div>
-              <div style={{ color: COLORS.textDimmest, fontSize: '0.65rem', marginTop: '3px' }}>
-                Stored on this device
               </div>
             </>
           ) : (
             <div>
               <input
                 type="number"
-                placeholder="Starting bankroll ($)"
+                placeholder="Starting ($)"
                 value={bankrollInput}
                 onChange={e => setBankrollInput(e.target.value)}
-                style={{ ...inputStyle, width: '100%', marginBottom: '8px', boxSizing: 'border-box', fontSize: '0.8rem', padding: '8px' }}
+                className="w-full bg-slate-950 border border-slate-800 text-white rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-indigo-500 transition-colors"
               />
-              <div style={{ display: 'flex', gap: '5px' }}>
-                <button onClick={saveBankroll} style={{
-                  background: COLORS.gold, border: 'none', color: '#000', padding: '6px 12px',
-                  borderRadius: '4px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.7rem', fontWeight: 'bold',
-                  boxShadow: '0 0 8px rgba(255, 215, 0, 0.2)',
-                }}>
-                  SET
+              <div className="flex gap-2">
+                <button onClick={saveBankroll} className="px-3 py-1.5 bg-amber-500 text-black text-xs font-bold rounded-lg hover:bg-amber-400 transition-colors">
+                  Set
                 </button>
                 {startingBankroll > 0 && (
-                  <button onClick={() => setEditingBankroll(false)} style={{
-                    background: 'transparent', border: `1px solid ${COLORS.glassBorder}`, color: COLORS.textDim,
-                    padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.7rem',
-                  }}>
-                    CANCEL
+                  <button onClick={() => setEditingBankroll(false)} className="px-3 py-1.5 border border-slate-700 text-slate-400 text-xs rounded-lg hover:text-white transition-colors">
+                    Cancel
                   </button>
                 )}
               </div>
@@ -150,100 +87,125 @@ export default function Dashboard({
         </div>
       </div>
 
-      {/* P/L Chart */}
-      {PLChart && completedBets.length >= 2 && (
-        <div style={{ marginBottom: '30px' }} className="animate-fadeIn">
-          <PLChart bets={bets} />
+      {/* Rank Progress */}
+      {rankInfo && rankInfo.nextRank && totalBets > 0 && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-5 animate-slideUp">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{rankInfo.icon}</span>
+              <span className="text-sm font-bold text-white">{rankInfo.name}</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-500">
+              <span className="text-xs">{rankInfo.progress.percentage}%</span>
+              <span className="text-lg">{rankInfo.nextRank.icon}</span>
+              <span className="text-sm font-bold">{rankInfo.nextRank.name}</span>
+            </div>
+          </div>
+          <div className="bg-slate-800 h-2 rounded-full overflow-hidden mb-2">
+            <div
+              className="h-full bg-gradient-to-r from-indigo-600 to-violet-500 rounded-full animate-progressFill"
+              style={{ width: `${rankInfo.progress.percentage}%` }}
+            />
+          </div>
+          <div className="text-xs text-slate-500 flex gap-3">
+            {rankInfo.progress.betsNeeded > 0 && <span>{rankInfo.progress.betsNeeded} more bets</span>}
+            {rankInfo.progress.winRateNeeded > 0 && <span>+{rankInfo.progress.winRateNeeded.toFixed(1)}% win rate needed</span>}
+          </div>
         </div>
       )}
 
-      {/* Bankroll Chart */}
+      {/* Charts */}
+      {PLChart && completedBets.length >= 2 && (
+        <div className="mb-5 animate-fadeIn">
+          <PLChart bets={bets} />
+        </div>
+      )}
       {BankrollChart && startingBankroll > 0 && completedBets.length >= 2 && (
-        <div style={{ marginBottom: '30px' }} className="animate-fadeIn">
+        <div className="mb-5 animate-fadeIn">
           <BankrollChart bets={bets} startingBankroll={startingBankroll} />
         </div>
       )}
 
-      {/* Psychological Hooks */}
-      {totalBets > 0 && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '20px',
-          marginBottom: '30px',
-        }}>
-          {bestSport.sport && whatIfBestSportOnly > profit && (
-            <div style={{
-              ...glassCardStyle,
-              background: 'rgba(255, 215, 0, 0.03)',
-              border: '1px solid rgba(255, 215, 0, 0.2)',
-              padding: '20px',
-            }} className="animate-slideUp">
-              <h3 style={{ color: COLORS.gold, margin: '0 0 15px 0', fontSize: '0.85rem', letterSpacing: '1px' }}>
-                💰 YOU'RE LEAVING MONEY ON THE TABLE
-              </h3>
-              <p style={{ color: '#ccc', fontSize: '0.9rem', margin: '0 0 10px 0' }}>
-                If you <span style={{ color: COLORS.green }}>only bet {bestSport.sport}</span>:
-              </p>
-              <div style={{ fontSize: '1.8rem', color: COLORS.green, fontWeight: 'bold', textShadow: '0 0 15px rgba(0, 255, 136, 0.3)' }}>
-                +${whatIfBestSportOnly.toFixed(0)}
+      {/* Psych Hooks */}
+      {psychHooks && psychHooks.filter(h => h.show).length > 0 && (
+        <>
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-sm font-bold text-white">Intelligence Feed</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+            {psychHooks.filter(h => h.show).map((hook, i) => (
+              <div
+                key={hook.type}
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-4 animate-slideUp"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-base">{hook.icon}</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{hook.title}</span>
+                </div>
+                <div className="text-xl font-black text-white mb-1">{hook.value}</div>
+                <div className="text-xs text-slate-500">{hook.message}</div>
               </div>
-              <p style={{ color: COLORS.textDim, fontSize: '0.75rem', margin: '10px 0 0 0' }}>
-                Instead: {profit >= 0 ? '+' : ''}${profit.toFixed(0)}
-              </p>
-            </div>
-          )}
+            ))}
+          </div>
+        </>
+      )}
 
-          {totalMissedMoney > 0 && (
-            <div style={{
-              ...glassCardStyle,
-              background: 'rgba(0, 212, 255, 0.03)',
-              border: '1px solid rgba(0, 212, 255, 0.2)',
-              padding: '20px',
-            }} className="animate-slideUp stagger-2">
-              <h3 style={{ color: COLORS.blue, margin: '0 0 15px 0', fontSize: '0.85rem', letterSpacing: '1px' }}>
-                🧠 YOUR GUT WAS RIGHT
-              </h3>
-              <p style={{ color: '#ccc', fontSize: '0.9rem', margin: '0 0 10px 0' }}>
-                Bets you considered but didn't place:
-              </p>
-              <div style={{ fontSize: '1.8rem', color: COLORS.gold, fontWeight: 'bold', textShadow: '0 0 15px rgba(255, 215, 0, 0.3)' }}>
-                ${totalMissedMoney.toFixed(0)} left on the table
+      {/* Detailed Streaks */}
+      {detailedStreaks && totalBets > 0 && (detailedStreaks.longestWin > 0 || detailedStreaks.longestLoss > 0) && (
+        <div className="grid grid-cols-3 gap-3 mb-5 animate-slideUp">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Best Win Streak</div>
+            <div className="text-2xl font-black text-emerald-400">{detailedStreaks.longestWin}</div>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Worst Loss Streak</div>
+            <div className="text-2xl font-black text-rose-400">{detailedStreaks.longestLoss}</div>
+          </div>
+          {detailedStreaks.currentStreak > 1 && (
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Current</div>
+              <div className={`text-2xl font-black ${detailedStreaks.currentType === 'win' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {detailedStreaks.currentStreak}{detailedStreaks.currentType === 'win' ? 'W' : 'L'}
               </div>
-              <p style={{ color: COLORS.textDim, fontSize: '0.75rem', margin: '10px 0 0 0' }}>
-                Trust yourself next time.
-              </p>
             </div>
           )}
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Empty State */}
       {totalBets === 0 && (
-        <div style={{
-          ...glassCardStyle,
-          textAlign: 'center',
-          padding: '60px 20px',
-          border: '1px dashed rgba(255, 255, 255, 0.1)',
-        }} className="animate-fadeInScale">
-          <div style={{ fontSize: '3rem', marginBottom: '20px' }} className="animate-float">📊</div>
-          <h3 style={{ color: COLORS.textDim, margin: '0 0 10px 0' }}>No bets logged yet</h3>
-          <p style={{ color: COLORS.textDimmest, margin: '0 0 20px 0' }}>Start tracking to see your edge</p>
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center animate-fadeIn">
+          <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+            <Target className="text-white w-7 h-7" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">Welcome, Rookie</h3>
+          <p className="text-slate-500 text-sm mb-6">
+            Log bets to unlock your rank and discover your betting archetype
+          </p>
+
+          {/* Rank tier preview */}
+          <div className="flex justify-center gap-2 mb-8 flex-wrap">
+            {RANK_TIERS.map((tier, i) => (
+              <div
+                key={tier.id}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${
+                  i === 0 ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-slate-800/50 border-slate-700/50 opacity-40'
+                }`}
+              >
+                <span className="text-sm">{tier.icon}</span>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${i === 0 ? 'text-indigo-400' : 'text-slate-500'}`}>
+                  {tier.name}
+                </span>
+              </div>
+            ))}
+          </div>
+
           <button
             onClick={onNavigateToBets}
-            style={{
-              background: 'linear-gradient(90deg, #00ff88, #00d4ff)',
-              border: 'none',
-              color: '#000',
-              padding: '15px 30px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 15px rgba(0, 255, 136, 0.3)',
-            }}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg shadow-indigo-900/20"
           >
-            LOG YOUR FIRST BET
+            Log Your First Bet
           </button>
         </div>
       )}

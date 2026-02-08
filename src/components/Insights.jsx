@@ -1,16 +1,22 @@
-import { COLORS, glassCardStyle } from '../lib/styles';
+import { COLORS } from '../lib/styles';
+import { Lock, TrendingUp, Calendar } from 'lucide-react';
 
-export default function Insights({ completedBets, totalBets, sportBreakdownChart: SportBreakdownChart }) {
+export default function Insights({ completedBets, totalBets, sportBreakdownChart: SportBreakdownChart, dayOfWeekStats }) {
   if (totalBets < 5) {
+    const progress = Math.min(totalBets / 5, 1);
     return (
-      <div style={{
-        ...glassCardStyle,
-        padding: '60px 20px',
-        textAlign: 'center',
-      }} className="animate-fadeInScale">
-        <div style={{ fontSize: '3rem', marginBottom: '20px' }} className="animate-float">📈</div>
-        <h3 style={{ color: COLORS.textDim, margin: '0 0 10px 0' }}>Need more data</h3>
-        <p style={{ color: COLORS.textDimmest, margin: 0 }}>Log at least 5 bets to unlock insights</p>
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center animate-fadeIn">
+        <Lock className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+        <h3 className="text-white font-bold mb-2">Insights Locked</h3>
+        <div className="max-w-[200px] mx-auto bg-slate-800 h-2 rounded-full overflow-hidden mb-2">
+          <div
+            className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+        <p className="text-slate-500 text-xs">
+          {totalBets}/5 bets to unlock
+        </p>
       </div>
     );
   }
@@ -30,77 +36,114 @@ export default function Insights({ completedBets, totalBets, sportBreakdownChart
   const favProfit = favs.reduce((s, b) => s + Number(b.payout) - Number(b.stake), 0);
   const dogProfit = dogs.reduce((s, b) => s + Number(b.payout) - Number(b.stake), 0);
 
+  const dayEntries = dayOfWeekStats
+    ? Object.entries(dayOfWeekStats)
+        .filter(([, s]) => s.total > 0)
+        .sort((a, b) => b[1].profit - a[1].profit)
+    : [];
+
+  const validationMessages = [];
+  const dogWinRate = dogs.length > 0 ? (dogWins / dogs.length) * 100 : 0;
+  if (dogWinRate > 55 && dogs.length >= 5) {
+    validationMessages.push({
+      text: `Underdog picks hit ${dogWinRate.toFixed(0)}% \u2014 elite territory`,
+      color: 'emerald',
+    });
+  }
+  if (dayEntries.length > 0 && dayEntries[0][1].profit > 0) {
+    validationMessages.push({
+      text: `Sharpest on ${dayEntries[0][0]}s`,
+      color: 'indigo',
+    });
+  }
+
   return (
     <div>
-      {/* Sport Breakdown Chart */}
       {SportBreakdownChart && <SportBreakdownChart completedBets={completedBets} />}
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px',
-      }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
         {/* Sport breakdown */}
-        <div style={{
-          ...glassCardStyle,
-          background: 'rgba(0, 200, 150, 0.03)',
-          border: '1px solid rgba(0, 200, 150, 0.15)',
-          padding: '20px',
-        }} className="animate-slideUp stagger-1">
-          <h3 style={{
-            color: COLORS.teal,
-            margin: '0 0 15px 0',
-            fontSize: '0.85rem',
-            textShadow: '0 0 10px rgba(0, 200, 150, 0.3)',
-          }}>
-            📊 BY SPORT
-          </h3>
-          {Object.entries(sportBreakdown).map(([sport, stats]) => (
-            <div key={sport} className="insight-row" style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '10px 8px',
-              borderBottom: `1px solid ${COLORS.glassBorder}`,
-              borderRadius: '4px',
-              transition: 'background 0.2s ease',
-            }}>
-              <span style={{ color: COLORS.textMuted }}>{sport}</span>
-              <span style={{ color: stats.profit >= 0 ? COLORS.green : COLORS.red }}>
-                {stats.wins}-{stats.losses} ({stats.profit >= 0 ? '+' : ''}${stats.profit.toFixed(0)})
-              </span>
-            </div>
-          ))}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-slideUp">
+          <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-teal-400" />
+            <h3 className="text-sm font-bold text-white">By Sport</h3>
+          </div>
+          <div className="divide-y divide-slate-800/50">
+            {Object.entries(sportBreakdown).map(([sport, s]) => (
+              <div key={sport} className="flex justify-between items-center px-4 py-2.5 hover:bg-slate-800/30 transition-colors">
+                <span className="text-sm text-slate-300">{sport}</span>
+                <span className={`text-sm font-mono font-bold ${s.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {s.wins}-{s.losses} ({s.profit >= 0 ? '+' : ''}${s.profit.toFixed(0)})
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Odds breakdown */}
-        <div style={{
-          ...glassCardStyle,
-          background: 'rgba(255, 215, 0, 0.03)',
-          border: '1px solid rgba(255, 215, 0, 0.15)',
-          padding: '20px',
-        }} className="animate-slideUp stagger-2">
-          <h3 style={{
-            color: COLORS.gold,
-            margin: '0 0 15px 0',
-            fontSize: '0.85rem',
-            textShadow: '0 0 10px rgba(255, 215, 0, 0.3)',
-          }}>
-            🎯 FAVORITES VS UNDERDOGS
-          </h3>
-          <div style={{ marginBottom: '15px' }}>
-            <div style={{ color: COLORS.textMuted, fontSize: '0.8rem' }}>Favorites:</div>
-            <div style={{ color: favProfit >= 0 ? COLORS.green : COLORS.red, fontSize: '1.1rem' }}>
-              {favWins}/{favs.length} wins &bull; {favProfit >= 0 ? '+' : ''}${favProfit.toFixed(0)}
-            </div>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-slideUp">
+          <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-amber-400" />
+            <h3 className="text-sm font-bold text-white">Favorites vs Underdogs</h3>
           </div>
-          <div>
-            <div style={{ color: COLORS.textMuted, fontSize: '0.8rem' }}>Underdogs:</div>
-            <div style={{ color: dogProfit >= 0 ? COLORS.green : COLORS.red, fontSize: '1.1rem' }}>
-              {dogWins}/{dogs.length} wins &bull; {dogProfit >= 0 ? '+' : ''}${dogProfit.toFixed(0)}
+          <div className="p-4 space-y-4">
+            <div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Favorites</div>
+              <div className={`text-lg font-bold font-mono ${favProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {favWins}/{favs.length} wins &middot; {favProfit >= 0 ? '+' : ''}${favProfit.toFixed(0)}
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Underdogs</div>
+              <div className={`text-lg font-bold font-mono ${dogProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {dogWins}/{dogs.length} wins &middot; {dogProfit >= 0 ? '+' : ''}${dogProfit.toFixed(0)}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Day of Week */}
+        {dayEntries.length > 0 && (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-slideUp">
+            <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-violet-400" />
+              <h3 className="text-sm font-bold text-white">Day of Week</h3>
+            </div>
+            <div className="divide-y divide-slate-800/50">
+              {dayEntries.map(([day, s]) => (
+                <div key={day} className="flex justify-between items-center px-4 py-2.5 hover:bg-slate-800/30 transition-colors">
+                  <span className="text-sm text-slate-300">{day}</span>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-sm font-mono font-bold ${s.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {s.profit >= 0 ? '+' : ''}${s.profit.toFixed(0)}
+                    </span>
+                    <span className="text-xs text-slate-500">{s.winRate}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Validation messages */}
+      {validationMessages.length > 0 && (
+        <div className="space-y-2">
+          {validationMessages.map((msg, i) => (
+            <div
+              key={i}
+              className={`flex items-center gap-2 px-4 py-3 rounded-xl border animate-slideUp ${
+                msg.color === 'emerald'
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                  : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4 shrink-0" />
+              <span className="text-sm font-bold">{msg.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

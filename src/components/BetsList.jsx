@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculatePayout } from '../lib/odds';
-import { thStyle, tdStyle, miniBtn, gradientButtonStyle, glassCardStyle, COLORS } from '../lib/styles';
+import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import BetForm from './BetForm';
 
 const BETS_PER_PAGE = 20;
@@ -82,10 +82,10 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
     <div>
       <button
         onClick={() => setShowForm(true)}
-        style={{ ...gradientButtonStyle, marginBottom: '20px' }}
-        className="animate-slideUp"
+        className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg shadow-indigo-900/20 mb-5 animate-slideUp"
       >
-        + LOG NEW BET
+        <Plus className="w-4 h-4" />
+        Log New Bet
       </button>
 
       {showForm && (
@@ -97,64 +97,72 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
         />
       )}
 
-      <div style={{ ...glassCardStyle, overflow: 'hidden' }} className="animate-fadeIn">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-fadeIn">
         {bets.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: COLORS.textDimmer }}>
+          <div className="p-12 text-center text-slate-500 text-sm">
             No bets yet. Start tracking!
           </div>
         ) : (
           <>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[700px]">
                 <thead>
-                  <tr style={{ background: 'rgba(255, 255, 255, 0.04)' }}>
-                    <th style={thStyle}>DATE</th>
-                    <th style={thStyle}>SPORT</th>
-                    <th style={thStyle}>EVENT</th>
-                    <th style={thStyle}>PICK</th>
-                    <th style={thStyle}>ODDS</th>
-                    <th style={thStyle}>STAKE</th>
-                    <th style={thStyle}>RESULT</th>
-                    <th style={thStyle}>P/L</th>
-                    <th style={thStyle}>ACTIONS</th>
+                  <tr className="border-b border-slate-800">
+                    {['Date', 'Sport', 'Event', 'Pick', 'Odds', 'Stake', 'Result', 'P/L', 'Actions'].map(h => (
+                      <th key={h} className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider px-4 py-3">
+                        {h}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedBets.map(bet => (
-                    <tr key={bet.id} className="glass-table-row" style={{ borderBottom: `1px solid ${COLORS.glassBorder}` }}>
-                      <td style={tdStyle}>{bet.date}</td>
-                      <td style={tdStyle}>{bet.sport}</td>
-                      <td style={tdStyle}>{bet.event}</td>
-                      <td style={tdStyle}>{bet.pick}</td>
-                      <td style={tdStyle}>{bet.odds > 0 ? `+${bet.odds}` : bet.odds}</td>
-                      <td style={tdStyle}>${bet.stake}</td>
-                      <td style={tdStyle}>
+                    <tr key={bet.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+                      <td className="px-4 py-3 text-sm text-slate-400">{bet.date}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{bet.sport}</td>
+                      <td className="px-4 py-3 text-sm text-white font-medium">{bet.event}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{bet.pick}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300 font-mono">{bet.odds > 0 ? `+${bet.odds}` : bet.odds}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300 font-mono">${bet.stake}</td>
+                      <td className="px-4 py-3">
                         {bet.result === 'pending' ? (
-                          <div style={{ display: 'flex', gap: '5px' }}>
-                            <button onClick={() => updateBetResult(bet.id, 'win')} style={miniBtn(COLORS.green)}>W</button>
-                            <button onClick={() => updateBetResult(bet.id, 'loss')} style={miniBtn(COLORS.red)}>L</button>
-                            <button onClick={() => updateBetResult(bet.id, 'push')} style={miniBtn(COLORS.gold)}>P</button>
+                          <div className="flex gap-1.5">
+                            <button onClick={() => updateBetResult(bet.id, 'win')} className="px-2.5 py-1 text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">
+                              W
+                            </button>
+                            <button onClick={() => updateBetResult(bet.id, 'loss')} className="px-2.5 py-1 text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-colors">
+                              L
+                            </button>
+                            <button onClick={() => updateBetResult(bet.id, 'push')} className="px-2.5 py-1 text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg hover:bg-amber-500/20 transition-colors">
+                              P
+                            </button>
                           </div>
                         ) : (
-                          <span style={{
-                            color: bet.result === 'win' ? COLORS.green : bet.result === 'loss' ? COLORS.red : COLORS.gold,
-                            textShadow: `0 0 8px ${bet.result === 'win' ? 'rgba(0,255,136,0.3)' : bet.result === 'loss' ? 'rgba(255,68,68,0.3)' : 'rgba(255,215,0,0.3)'}`,
-                          }}>
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                            bet.result === 'win' ? 'bg-emerald-500/10 text-emerald-400' :
+                            bet.result === 'loss' ? 'bg-rose-500/10 text-rose-400' :
+                            'bg-amber-500/10 text-amber-400'
+                          }`}>
                             {bet.result.toUpperCase()}
                           </span>
                         )}
                       </td>
-                      <td style={{
-                        ...tdStyle,
-                        color: bet.result === 'win' ? COLORS.green : bet.result === 'loss' ? COLORS.red : COLORS.textDim,
-                      }}>
+                      <td className={`px-4 py-3 text-sm font-bold font-mono ${
+                        bet.result === 'win' ? 'text-emerald-400' :
+                        bet.result === 'loss' ? 'text-rose-400' :
+                        'text-slate-500'
+                      }`}>
                         {bet.result === 'win' ? `+$${(bet.payout - bet.stake).toFixed(0)}` :
                          bet.result === 'loss' ? `-$${bet.stake}` : '-'}
                       </td>
-                      <td style={tdStyle}>
-                        <div style={{ display: 'flex', gap: '5px' }}>
-                          <button onClick={() => onEditBet(bet)} style={miniBtn(COLORS.blue)}>EDIT</button>
-                          <button onClick={() => deleteBet(bet.id)} style={miniBtn(COLORS.red)}>DEL</button>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1.5">
+                          <button onClick={() => onEditBet(bet)} className="p-1.5 text-slate-500 hover:text-indigo-400 transition-colors rounded-lg hover:bg-slate-800">
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => deleteBet(bet.id)} className="p-1.5 text-slate-500 hover:text-rose-400 transition-colors rounded-lg hover:bg-slate-800">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -163,40 +171,26 @@ export default function BetsList({ bets, setBets, userId, showToast, onEditBet }
               </table>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '15px',
-                padding: '15px',
-                borderTop: `1px solid ${COLORS.glassBorder}`,
-              }}>
+              <div className="flex justify-center items-center gap-4 p-4 border-t border-slate-800">
                 <button
                   onClick={() => setPage(p => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  style={{
-                    ...miniBtn(COLORS.green),
-                    opacity: page === 0 ? 0.3 : 1,
-                    padding: '8px 16px',
-                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-white border border-slate-700 rounded-lg transition-colors disabled:opacity-30"
                 >
-                  PREV
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  Prev
                 </button>
-                <span style={{ color: COLORS.textDimmer, fontSize: '0.8rem' }}>
+                <span className="text-xs text-slate-500 font-medium">
                   {page + 1} / {totalPages}
                 </span>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
-                  style={{
-                    ...miniBtn(COLORS.green),
-                    opacity: page >= totalPages - 1 ? 0.3 : 1,
-                    padding: '8px 16px',
-                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-white border border-slate-700 rounded-lg transition-colors disabled:opacity-30"
                 >
-                  NEXT
+                  Next
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}

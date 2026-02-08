@@ -1,22 +1,15 @@
-import { glassCardStyle, inputStyle, cancelButtonStyle, COLORS, SPORT_OPTIONS } from '../lib/styles';
+import { SPORT_OPTIONS } from '../lib/styles';
+
+const inputClass = "w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors";
 
 export default function BetForm({ newBet, setNewBet, onSubmit, onCancel }) {
   return (
-    <div style={{
-      ...glassCardStyle,
-      padding: '20px',
-      marginBottom: '20px',
-    }} className="animate-scaleIn">
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '15px',
-        marginBottom: '15px',
-      }}>
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-5 animate-scaleIn">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 mb-4">
         <select
           value={newBet.sport}
           onChange={e => setNewBet({ ...newBet, sport: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         >
           {SPORT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
@@ -24,30 +17,30 @@ export default function BetForm({ newBet, setNewBet, onSubmit, onCancel }) {
           placeholder="Event"
           value={newBet.event}
           onChange={e => setNewBet({ ...newBet, event: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
         <input
           placeholder="Your Pick"
           value={newBet.pick}
           onChange={e => setNewBet({ ...newBet, pick: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
         <input
           placeholder="Odds (-110)"
           value={newBet.odds}
           onChange={e => setNewBet({ ...newBet, odds: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
         <input
           placeholder="Stake ($)"
           value={newBet.stake}
           onChange={e => setNewBet({ ...newBet, stake: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
         <select
           value={newBet.result}
           onChange={e => setNewBet({ ...newBet, result: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         >
           <option value="pending">Pending</option>
           <option value="win">Win</option>
@@ -55,21 +48,19 @@ export default function BetForm({ newBet, setNewBet, onSubmit, onCancel }) {
           <option value="push">Push</option>
         </select>
       </div>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={onSubmit} style={{
-          background: COLORS.green,
-          border: 'none',
-          color: '#000',
-          padding: '12px 24px',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-          fontWeight: 'bold',
-          boxShadow: '0 0 10px rgba(0, 255, 136, 0.2)',
-        }}>
-          ADD BET
+      <div className="flex gap-3">
+        <button
+          onClick={onSubmit}
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg shadow-indigo-900/20"
+        >
+          Add Bet
         </button>
-        <button onClick={onCancel} style={cancelButtonStyle}>CANCEL</button>
+        <button
+          onClick={onCancel}
+          className="px-6 py-3 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-600 rounded-xl text-sm transition-colors"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

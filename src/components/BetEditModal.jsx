@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { calculatePayout } from '../lib/odds';
-import { inputStyle, glassCardStyle, COLORS, SPORT_OPTIONS } from '../lib/styles';
+import { SPORT_OPTIONS } from '../lib/styles';
+import { X } from 'lucide-react';
+
+const inputClass = "w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors";
 
 export default function BetEditModal({ bet, onClose, onSave, showToast }) {
   const [form, setForm] = useState({
@@ -41,103 +44,82 @@ export default function BetEditModal({ bet, onClose, onSave, showToast }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.6)',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '20px',
-    }}
-      className="animate-fadeIn"
+    <div
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000] p-5 animate-fadeIn"
       onClick={onClose}
     >
       <div
-        style={{
-          ...glassCardStyle,
-          background: 'rgba(26, 26, 46, 0.95)',
-          padding: '30px',
-          maxWidth: '500px',
-          width: '100%',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 212, 255, 0.1)',
-        }}
-        className="animate-fadeInScale"
+        className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full shadow-2xl animate-scaleIn"
         onClick={e => e.stopPropagation()}
       >
-        <h3 style={{
-          color: COLORS.blue,
-          margin: '0 0 20px 0',
-          letterSpacing: '1px',
-          textShadow: '0 0 10px rgba(0, 212, 255, 0.3)',
-        }}>
-          EDIT BET
-        </h3>
-
-        <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
-          <select
-            value={form.sport}
-            onChange={e => setForm({ ...form, sport: e.target.value })}
-            style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
-          >
-            {SPORT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <input
-            placeholder="Event"
-            value={form.event}
-            onChange={e => setForm({ ...form, event: e.target.value })}
-            style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
-          />
-          <input
-            placeholder="Your Pick"
-            value={form.pick}
-            onChange={e => setForm({ ...form, pick: e.target.value })}
-            style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
-          />
-          <input
-            placeholder="Odds (-110)"
-            value={form.odds}
-            onChange={e => setForm({ ...form, odds: e.target.value })}
-            style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
-          />
-          <input
-            placeholder="Stake ($)"
-            value={form.stake}
-            onChange={e => setForm({ ...form, stake: e.target.value })}
-            style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
-          />
+        <div className="flex items-center justify-between p-5 border-b border-slate-800">
+          <h3 className="text-white font-bold text-lg">Edit Bet</h3>
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={handleSave} style={{
-            background: COLORS.green,
-            border: 'none',
-            color: '#000',
-            padding: '12px 24px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-            fontWeight: 'bold',
-            boxShadow: '0 0 10px rgba(0, 255, 136, 0.2)',
-          }}>
-            SAVE CHANGES
+        <div className="p-5 space-y-3">
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Sport</label>
+            <select
+              value={form.sport}
+              onChange={e => setForm({ ...form, sport: e.target.value })}
+              className={inputClass}
+            >
+              {SPORT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Event</label>
+            <input
+              placeholder="Event"
+              value={form.event}
+              onChange={e => setForm({ ...form, event: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Pick</label>
+            <input
+              placeholder="Your Pick"
+              value={form.pick}
+              onChange={e => setForm({ ...form, pick: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Odds</label>
+            <input
+              placeholder="Odds (-110)"
+              value={form.odds}
+              onChange={e => setForm({ ...form, odds: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Stake</label>
+            <input
+              placeholder="Stake ($)"
+              value={form.stake}
+              onChange={e => setForm({ ...form, stake: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3 p-5 pt-0">
+          <button
+            onClick={handleSave}
+            className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg shadow-indigo-900/20"
+          >
+            Save Changes
           </button>
-          <button onClick={onClose} style={{
-            background: 'transparent',
-            border: `1px solid ${COLORS.glassBorder}`,
-            color: COLORS.textDim,
-            padding: '12px 24px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}>
-            CANCEL
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-600 rounded-xl text-sm transition-colors"
+          >
+            Cancel
           </button>
         </div>
       </div>

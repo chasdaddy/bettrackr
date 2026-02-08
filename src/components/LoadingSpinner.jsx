@@ -1,28 +1,13 @@
-import { containerStyle, COLORS } from '../lib/styles';
+import { TrendingUp } from 'lucide-react';
 
 export function FullPageSpinner() {
   return (
-    <div style={containerStyle} className="animate-fadeIn">
-      <div style={{ textAlign: 'center', paddingTop: '100px' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: `3px solid ${COLORS.border}`,
-          borderTop: `3px solid ${COLORS.green}`,
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-          margin: '0 auto 20px',
-          boxShadow: '0 0 15px rgba(0, 255, 136, 0.4), 0 0 30px rgba(0, 255, 136, 0.1)',
-        }} />
-        <div style={{
-          color: COLORS.green,
-          fontSize: '1rem',
-          letterSpacing: '2px',
-          animation: 'pulse 1.5s ease-in-out infinite',
-          textShadow: '0 0 10px rgba(0, 255, 136, 0.3)',
-        }}>
-          LOADING...
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center animate-fadeIn">
+      <div className="text-center">
+        <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20 animate-pulse">
+          <TrendingUp className="text-white w-6 h-6" />
         </div>
+        <div className="text-slate-500 text-sm font-medium">Loading...</div>
       </div>
     </div>
   );
@@ -30,15 +15,9 @@ export function FullPageSpinner() {
 
 export function InlineSpinner({ size = 20 }) {
   return (
-    <span style={{
-      display: 'inline-block',
-      width: size,
-      height: size,
-      border: `2px solid ${COLORS.border}`,
-      borderTop: `2px solid ${COLORS.green}`,
-      borderRadius: '50%',
-      animation: 'spin 0.8s linear infinite',
-      boxShadow: '0 0 8px rgba(0, 255, 136, 0.3)',
-    }} />
+    <div
+      className="border-2 border-slate-800 border-t-indigo-500 rounded-full animate-spin"
+      style={{ width: size, height: size }}
+    />
   );
 }

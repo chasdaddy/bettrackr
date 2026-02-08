@@ -1,58 +1,47 @@
-import { glassCardStyle, inputStyle, cancelButtonStyle, COLORS } from '../lib/styles';
+const inputClass = "w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors";
 
 export default function GutCallForm({ newGutCall, setNewGutCall, onSubmit, onCancel }) {
   return (
-    <div style={{
-      ...glassCardStyle,
-      padding: '20px',
-      marginBottom: '20px',
-    }} className="animate-scaleIn">
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '15px',
-        marginBottom: '15px',
-      }}>
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-5 animate-scaleIn">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 mb-4">
         <input
           placeholder="Event"
           value={newGutCall.event}
           onChange={e => setNewGutCall({ ...newGutCall, event: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
         <input
           placeholder="Pick you're considering"
           value={newGutCall.pick}
           onChange={e => setNewGutCall({ ...newGutCall, pick: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
         <input
           placeholder="Odds"
           value={newGutCall.odds}
           onChange={e => setNewGutCall({ ...newGutCall, odds: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
         <input
           placeholder="Would bet ($)"
           value={newGutCall.potential_stake}
           onChange={e => setNewGutCall({ ...newGutCall, potential_stake: e.target.value })}
-          style={inputStyle}
+          className={inputClass}
         />
       </div>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={onSubmit} style={{
-          background: COLORS.blue,
-          border: 'none',
-          color: '#000',
-          padding: '12px 24px',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-          fontWeight: 'bold',
-          boxShadow: '0 0 10px rgba(0, 212, 255, 0.2)',
-        }}>
-          SAVE GUT CALL
+      <div className="flex gap-3">
+        <button
+          onClick={onSubmit}
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg shadow-indigo-900/20"
+        >
+          Save Gut Call
         </button>
-        <button onClick={onCancel} style={cancelButtonStyle}>CANCEL</button>
+        <button
+          onClick={onCancel}
+          className="px-6 py-3 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-600 rounded-xl text-sm transition-colors"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

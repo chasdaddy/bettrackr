@@ -13,6 +13,7 @@ import ShareCard from './components/ShareCard';
 import PLChart from './components/PLChart';
 import SportBreakdownChart from './components/SportBreakdownChart';
 import BankrollChart from './components/BankrollChart';
+import { calculateRank, detectArchetype, generatePsychHooks, getDetailedStreaks, getDayOfWeekStats } from './lib/ranks';
 
 export default function BetTrackr() {
   const [user, setUser] = useState(null);
@@ -124,6 +125,11 @@ export default function BetTrackr() {
   };
   const bestSport = getBestSport();
 
+  const rankInfo = calculateRank(totalBets, parseFloat(winRate), profit);
+  const archetype = detectArchetype(completedBets, parseFloat(winRate), profit);
+  const detailedStreaks = getDetailedStreaks(completedBets);
+  const dayOfWeekStats = getDayOfWeekStats(completedBets);
+
   const whatIfBestSportOnly = () => {
     const sportBets = completedBets.filter(b => b.sport === bestSport.sport);
     const staked = sportBets.reduce((sum, b) => sum + Number(b.stake), 0);
@@ -134,11 +140,14 @@ export default function BetTrackr() {
   const missedWins = gutCalls.filter(g => g.actual_result === 'won');
   const totalMissedMoney = missedWins.reduce((sum, g) => sum + Number(g.would_have_won || 0), 0);
 
+  const psychHooks = generatePsychHooks(completedBets, { totalMissedMoney, detailedStreaks }, rankInfo);
+
   const stats = {
     profit, roi, winRate, wins, losses,
     totalBets, totalStaked, bestSport, streakInfo,
     whatIfBestSportOnly: whatIfBestSportOnly(),
     totalMissedMoney,
+    rankInfo, archetype, detailedStreaks, dayOfWeekStats, psychHooks,
   };
 
   const handleEditSave = (updatedBet) => {
@@ -149,7 +158,7 @@ export default function BetTrackr() {
   if (!user) return <Auth />;
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} streakInfo={streakInfo} onLogout={handleLogout}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} streakInfo={streakInfo} onLogout={handleLogout} rankInfo={rankInfo} archetype={archetype}>
       {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
       {editingBet && (
         <BetEditModal
@@ -198,6 +207,7 @@ export default function BetTrackr() {
           completedBets={completedBets}
           totalBets={totalBets}
           sportBreakdownChart={SportBreakdownChart}
+          dayOfWeekStats={dayOfWeekStats}
         />
       )}
 

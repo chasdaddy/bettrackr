@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { containerStyle, glassCardStyle, inputStyle, COLORS } from '../lib/styles';
+import { TrendingUp } from 'lucide-react';
 
 export default function Auth() {
   const [authMode, setAuthMode] = useState('login');
@@ -28,91 +28,70 @@ export default function Auth() {
     }
   };
 
-  const tabBtn = (mode) => ({
-    flex: 1,
-    padding: '12px',
-    background: authMode === mode ? 'rgba(0, 255, 136, 0.1)' : 'transparent',
-    border: 'none',
-    borderBottom: authMode === mode ? `2px solid ${COLORS.green}` : '2px solid transparent',
-    color: authMode === mode ? COLORS.green : COLORS.textDimmer,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    transition: 'all 0.3s ease',
-    boxShadow: authMode === mode ? '0 2px 10px rgba(0, 255, 136, 0.15)' : 'none',
-  });
-
   return (
-    <div style={containerStyle} className="animate-fadeIn">
-      <div style={{
-        ...glassCardStyle,
-        maxWidth: '400px',
-        margin: '80px auto',
-        padding: '40px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 255, 136, 0.05)',
-      }} className="animate-float">
-        <h1 style={{
-          margin: '0 0 10px 0',
-          fontSize: '2rem',
-          background: 'linear-gradient(90deg, #00ff88, #00d4ff)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          letterSpacing: '3px',
-          textAlign: 'center',
-          filter: 'drop-shadow(0 0 10px rgba(0, 255, 136, 0.3))',
-        }}>
-          BETTRACKR
-        </h1>
-        <p style={{ color: COLORS.textDimmer, textAlign: 'center', marginBottom: '30px', fontSize: '0.8rem' }}>
-          Track your edge. Beat the books.
-        </p>
-
-        <div style={{ display: 'flex', marginBottom: '20px' }}>
-          <button onClick={() => setAuthMode('login')} style={tabBtn('login')}>LOGIN</button>
-          <button onClick={() => setAuthMode('signup')} style={tabBtn('signup')}>SIGN UP</button>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 animate-fadeIn">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+            <TrendingUp className="text-white w-7 h-7" />
+          </div>
+          <h1 className="text-2xl font-black text-white tracking-tight">BetTrackr</h1>
+          <p className="text-slate-500 text-sm mt-1">Track your edge. Beat the books.</p>
         </div>
 
-        <form onSubmit={handleAuth}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={authEmail}
-            onChange={e => setAuthEmail(e.target.value)}
-            style={{ ...inputStyle, width: '100%', marginBottom: '15px', boxSizing: 'border-box' }}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={authPassword}
-            onChange={e => setAuthPassword(e.target.value)}
-            style={{ ...inputStyle, width: '100%', marginBottom: '20px', boxSizing: 'border-box' }}
-          />
-          {authError && (
-            <div style={{
-              color: authError.includes('Check') ? COLORS.green : COLORS.red,
-              marginBottom: '15px',
-              fontSize: '0.85rem',
-              animation: 'fadeIn 0.3s ease',
-            }}>
-              {authError}
+        {/* Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+          {/* Tabs */}
+          <div className="flex border-b border-slate-800">
+            {['login', 'signup'].map(mode => (
+              <button
+                key={mode}
+                onClick={() => setAuthMode(mode)}
+                className={`flex-1 py-3.5 text-sm font-bold transition-colors ${authMode === mode ? 'text-white bg-slate-800/50' : 'text-slate-500 hover:text-slate-300'}`}
+              >
+                {mode === 'login' ? 'Login' : 'Sign Up'}
+              </button>
+            ))}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleAuth} className="p-6 space-y-4">
+            <div>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Email</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={authEmail}
+                onChange={e => setAuthEmail(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors"
+              />
             </div>
-          )}
-          <button type="submit" style={{
-            width: '100%',
-            padding: '15px',
-            background: 'linear-gradient(90deg, #00ff88, #00d4ff)',
-            border: 'none',
-            borderRadius: '6px',
-            color: '#000',
-            fontFamily: 'inherit',
-            fontWeight: 'bold',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0, 255, 136, 0.3)',
-            transition: 'all 0.3s ease',
-          }}>
-            {authMode === 'login' ? 'LOGIN' : 'CREATE ACCOUNT'}
-          </button>
-        </form>
+            <div>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Password</label>
+              <input
+                type="password"
+                placeholder="********"
+                value={authPassword}
+                onChange={e => setAuthPassword(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-4 py-3 text-sm placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors"
+              />
+            </div>
+
+            {authError && (
+              <div className={`text-sm p-3 rounded-xl border ${authError.includes('Check') ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
+                {authError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg shadow-indigo-900/20"
+            >
+              {authMode === 'login' ? 'Login' : 'Create Account'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
