@@ -52,6 +52,18 @@
   from { width: 0; }
 }
 
+@keyframes ticker {
+  0% { opacity: 0; transform: translateY(8px); }
+  15% { opacity: 1; transform: translateY(0); }
+  85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.8); opacity: 0; }
+}
+
 .animate-fadeIn { animation: fadeIn 0.3s ease both; }
 .animate-slideUp { animation: slideUp 0.4s ease both; }
 .animate-slideDown { animation: slideDown 0.3s ease both; }
@@ -60,6 +72,8 @@
 .animate-pulse { animation: pulse 2s ease-in-out infinite; }
 .animate-shimmer { animation: shimmer 5s ease-in-out infinite; }
 .animate-progressFill { animation: progressFill 1s ease both; }
+.animate-ticker { animation: ticker 4s ease both; }
+.animate-glowPulse { animation: glowPulse 2s ease-in-out infinite; }
 
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.1s; }

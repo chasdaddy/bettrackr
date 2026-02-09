@@ -13,6 +13,8 @@ import ShareCard from './components/ShareCard';
 import PLChart from './components/PLChart';
 import SportBreakdownChart from './components/SportBreakdownChart';
 import BankrollChart from './components/BankrollChart';
+import PremiumModal from './components/PremiumModal';
+import ComingSoon from './components/ComingSoon';
 import { calculateRank, detectArchetype, generatePsychHooks, getDetailedStreaks, getDayOfWeekStats } from './lib/ranks';
 
 export default function BetTrackr() {
@@ -23,6 +25,7 @@ export default function BetTrackr() {
   const [gutCalls, setGutCalls] = useState([]);
   const [toast, setToast] = useState(null);
   const [editingBet, setEditingBet] = useState(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [startingBankroll, setStartingBankroll] = useState(() => {
     const saved = localStorage.getItem('bettrackr_bankroll');
     return saved ? parseFloat(saved) : 0;
@@ -87,6 +90,7 @@ export default function BetTrackr() {
 
   // Computed stats
   const completedBets = bets.filter(b => b.result !== 'pending');
+  const pendingBets = bets.filter(b => b.result === 'pending');
   const totalBets = completedBets.length;
   const wins = completedBets.filter(b => b.result === 'win').length;
   const losses = completedBets.filter(b => b.result === 'loss').length;
@@ -154,12 +158,25 @@ export default function BetTrackr() {
     setBets(bets.map(b => b.id === updatedBet.id ? updatedBet : b));
   };
 
+  const openPremium = () => setShowPremiumModal(true);
+
   if (loading) return <FullPageSpinner />;
   if (!user) return <Auth />;
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} streakInfo={streakInfo} onLogout={handleLogout} rankInfo={rankInfo} archetype={archetype}>
+    <Layout
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      streakInfo={streakInfo}
+      onLogout={handleLogout}
+      rankInfo={rankInfo}
+      archetype={archetype}
+      user={user}
+      pendingBets={pendingBets}
+      onOpenPremium={openPremium}
+    >
       {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
+      {showPremiumModal && <PremiumModal onClose={() => setShowPremiumModal(false)} />}
       {editingBet && (
         <BetEditModal
           bet={editingBet}
@@ -178,6 +195,8 @@ export default function BetTrackr() {
           startingBankroll={startingBankroll}
           setStartingBankroll={persistBankroll}
           onNavigateToBets={() => setActiveTab('bets')}
+          onOpenPremium={openPremium}
+          pendingBets={pendingBets}
           plChart={PLChart}
           bankrollChart={BankrollChart}
         />
@@ -208,10 +227,13 @@ export default function BetTrackr() {
           totalBets={totalBets}
           sportBreakdownChart={SportBreakdownChart}
           dayOfWeekStats={dayOfWeekStats}
+          onOpenPremium={openPremium}
         />
       )}
 
       {activeTab === 'share' && <ShareCard stats={stats} />}
+
+      {activeTab === 'community' && <ComingSoon feature="Community" />}
     </Layout>
   );
 }
