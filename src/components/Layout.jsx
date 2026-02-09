@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { LayoutGrid, Ticket, Brain, BarChart3, Share2, LogOut, TrendingUp, Crown, Users, Plus } from 'lucide-react';
 import LiveWire from './LiveWire';
 import BetSlip from './BetSlip';
@@ -30,19 +31,27 @@ const MOBILE_NAV = [
   { id: 'share', icon: Share2, label: 'Share' },
 ];
 
-export default function Layout({ activeTab, setActiveTab, streakInfo, onLogout, rankInfo, archetype, user, pendingBets = [], onOpenPremium, children }) {
+export default function Layout({ activeTab, setActiveTab, streakInfo, onLogout, rankInfo, archetype, user, pendingBets = [], completedBets = [], bankroll = 0, onOpenPremium, liveMessages, children }) {
   const page = PAGE_TITLES[activeTab] || PAGE_TITLES.dashboard;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-300 font-sans flex flex-col md:flex-row overflow-hidden">
 
-      {/* Desktop Sidebar — slim icon-only */}
-      <nav className="hidden md:flex flex-col w-16 bg-slate-950 border-r border-slate-900 py-5 items-center shrink-0">
-        <div className="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-8">
-          <TrendingUp className="text-white w-5 h-5" />
+      {/* Desktop Sidebar — hover to expand */}
+      <nav
+        onMouseEnter={() => setSidebarOpen(true)}
+        onMouseLeave={() => setSidebarOpen(false)}
+        className={`hidden md:flex flex-col ${sidebarOpen ? 'w-56' : 'w-16'} bg-slate-950 border-r border-slate-900 py-5 shrink-0 transition-all duration-300 overflow-hidden`}
+      >
+        <div className="flex items-center gap-3 px-3.5 mb-8">
+          <div className="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
+            <TrendingUp className="text-white w-5 h-5" />
+          </div>
+          <span className={`font-black text-white text-base whitespace-nowrap transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>BetTrackr</span>
         </div>
 
-        <div className="space-y-1 flex-1">
+        <div className="space-y-1 flex-1 px-3">
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = activeTab === item.id;
@@ -50,28 +59,36 @@ export default function Layout({ activeTab, setActiveTab, streakInfo, onLogout, 
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                title={item.label}
-                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 ${active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/30' : 'text-slate-600 hover:bg-slate-900 hover:text-slate-300'}`}
+                title={!sidebarOpen ? item.label : undefined}
+                className={`w-full h-10 flex items-center gap-3 px-2.5 rounded-xl transition-all duration-200 ${active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/30' : 'text-slate-600 hover:bg-slate-900 hover:text-slate-300'}`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5 shrink-0" />
+                <span className={`text-sm font-bold whitespace-nowrap overflow-hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>{item.label}</span>
               </button>
             );
           })}
         </div>
 
         {/* Bottom section */}
-        <div className="mt-auto pt-4 border-t border-slate-900 space-y-2 flex flex-col items-center">
+        <div className="mt-auto pt-4 border-t border-slate-900 space-y-2 px-3">
           {rankInfo && (
-            <div className="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-sm" title={rankInfo.name}>
-              {rankInfo.icon}
+            <div className="flex items-center gap-3 px-0.5">
+              <div className="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-sm shrink-0" title={rankInfo.name}>
+                {rankInfo.icon}
+              </div>
+              <div className={`whitespace-nowrap overflow-hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
+                <div className="text-xs font-bold text-white">{rankInfo.name}</div>
+                {archetype && <div className="text-[10px] text-slate-500">{archetype}</div>}
+              </div>
             </div>
           )}
           <button
             onClick={onLogout}
-            title="Logout"
-            className="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-rose-400 transition-colors rounded-xl hover:bg-slate-900"
+            title={!sidebarOpen ? 'Logout' : undefined}
+            className="w-full h-10 flex items-center gap-3 px-2.5 text-slate-600 hover:text-rose-400 transition-colors rounded-xl hover:bg-slate-900"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 shrink-0" />
+            <span className={`text-sm font-bold whitespace-nowrap overflow-hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>Logout</span>
           </button>
         </div>
       </nav>
@@ -109,8 +126,8 @@ export default function Layout({ activeTab, setActiveTab, streakInfo, onLogout, 
 
       {/* Desktop Right Rail */}
       <aside className="hidden xl:flex flex-col w-80 border-l border-slate-900 p-5 shrink-0 overflow-y-auto no-scrollbar">
-        <LiveWire />
-        <BetSlip pendingBets={pendingBets} />
+        <LiveWire messages={liveMessages} />
+        <BetSlip pendingBets={pendingBets} completedBets={completedBets} bankroll={bankroll} />
         <PremiumCTA onOpenPremium={onOpenPremium} />
 
         {/* Trust badge */}

@@ -1,7 +1,8 @@
 import { Ticket, Lock } from 'lucide-react';
 import { calculatePayout } from '../lib/odds';
+import { calculateKelly, getSportWinRate } from '../lib/kelly';
 
-export default function BetSlip({ pendingBets }) {
+export default function BetSlip({ pendingBets, completedBets = [], bankroll = 0 }) {
   const toWin = (bet) => {
     const payout = calculatePayout(Number(bet.odds), Number(bet.stake), 'win');
     return (payout - Number(bet.stake)).toFixed(2);
@@ -10,6 +11,13 @@ export default function BetSlip({ pendingBets }) {
   const totalPotential = pendingBets.reduce((sum, b) => {
     return sum + calculatePayout(Number(b.odds), Number(b.stake), 'win');
   }, 0);
+
+  const getKellyPct = (bet) => {
+    if (completedBets.length < 5 || bankroll <= 0) return null;
+    const winRate = getSportWinRate(completedBets, bet.sport);
+    const { fraction } = calculateKelly(Number(bet.odds), winRate, bankroll);
+    return (fraction * 100).toFixed(1);
+  };
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mb-4">
@@ -33,21 +41,24 @@ export default function BetSlip({ pendingBets }) {
       ) : (
         <>
           <div className="divide-y divide-slate-800/50 max-h-48 overflow-y-auto no-scrollbar">
-            {pendingBets.slice(0, 5).map(bet => (
-              <div key={bet.id} className="px-4 py-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-white truncate mr-2">{bet.pick}</span>
-                  <span className="text-xs font-mono text-slate-400">{bet.odds > 0 ? '+' : ''}{bet.odds}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-slate-500">${Number(bet.stake).toFixed(0)} to win ${toWin(bet)}</span>
-                  <div className="flex items-center gap-1 text-[10px] text-amber-400/50">
-                    <Lock className="w-2.5 h-2.5" />
-                    <span className="blur-[3px] select-none">Kelly 4.2%</span>
+            {pendingBets.slice(0, 5).map(bet => {
+              const kellyPct = getKellyPct(bet);
+              return (
+                <div key={bet.id} className="px-4 py-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-bold text-white truncate mr-2">{bet.pick}</span>
+                    <span className="text-xs font-mono text-slate-400">{bet.odds > 0 ? '+' : ''}{bet.odds}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-500">${Number(bet.stake).toFixed(0)} to win ${toWin(bet)}</span>
+                    <div className="flex items-center gap-1 text-[10px] text-amber-400/50">
+                      <Lock className="w-2.5 h-2.5" />
+                      <span className="blur-[3px] select-none">Kelly {kellyPct ?? '—'}%</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="px-4 py-3 border-t border-slate-800 bg-slate-950/50">
             <div className="flex items-center justify-between mb-2">

@@ -1,7 +1,9 @@
 import { COLORS } from '../lib/styles';
 import { Lock, TrendingUp, Calendar, Crown, GitBranch, Calculator } from 'lucide-react';
+import { calculateKelly } from '../lib/kelly';
+import { analyzeCorrelations } from '../lib/correlations';
 
-export default function Insights({ completedBets, totalBets, sportBreakdownChart: SportBreakdownChart, dayOfWeekStats, onOpenPremium }) {
+export default function Insights({ completedBets, totalBets, sportBreakdownChart: SportBreakdownChart, dayOfWeekStats, onOpenPremium, bankroll = 0 }) {
   if (totalBets < 5) {
     const progress = Math.min(totalBets / 5, 1);
     return (
@@ -146,59 +148,80 @@ export default function Insights({ completedBets, totalBets, sportBreakdownChart
       )}
 
       {/* Premium Locked Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-        {/* Bet Correlations — locked */}
-        <div className="relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-slideUp">
-          <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
-            <GitBranch className="w-4 h-4 text-violet-400" />
-            <h3 className="text-sm font-bold text-white">Bet Correlations</h3>
-            <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full ml-auto">PRO</span>
-          </div>
-          <div className="p-4 blur-[6px] select-none pointer-events-none">
-            <div className="space-y-3">
-              <div className="flex justify-between"><span className="text-sm text-slate-400">NBA + Over</span><span className="text-sm font-bold text-emerald-400">72% win rate</span></div>
-              <div className="flex justify-between"><span className="text-sm text-slate-400">NFL + Favorite</span><span className="text-sm font-bold text-emerald-400">64% win rate</span></div>
-              <div className="flex justify-between"><span className="text-sm text-slate-400">Weekend + Dog</span><span className="text-sm font-bold text-rose-400">38% win rate</span></div>
-            </div>
-          </div>
-          <div className="absolute inset-0 top-12 flex flex-col items-center justify-center">
-            <Lock className="w-5 h-5 text-slate-400 mb-2" />
-            <span className="text-xs font-bold text-slate-400 mb-2">Find patterns in your wins</span>
-            <button
-              onClick={onOpenPremium}
-              className="flex items-center gap-1.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-amber-400 hover:to-orange-400 transition-all"
-            >
-              <Crown className="w-3 h-3" /> Unlock with Pro
-            </button>
-          </div>
-        </div>
+      {(() => {
+        const correlations = analyzeCorrelations(completedBets);
+        const corrRows = correlations.best.length > 0 ? correlations.best.slice(0, 3) : correlations.worst.slice(0, 3);
 
-        {/* Optimal Stake Calculator — locked */}
-        <div className="relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-slideUp">
-          <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
-            <Calculator className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-bold text-white">Optimal Stake Calculator</h3>
-            <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full ml-auto">PRO</span>
-          </div>
-          <div className="p-4 blur-[6px] select-none pointer-events-none">
-            <div className="space-y-3">
-              <div className="flex justify-between"><span className="text-sm text-slate-400">Recommended stake</span><span className="text-sm font-bold text-white">$45.00</span></div>
-              <div className="flex justify-between"><span className="text-sm text-slate-400">Kelly fraction</span><span className="text-sm font-bold text-white">3.2%</span></div>
-              <div className="flex justify-between"><span className="text-sm text-slate-400">Expected value</span><span className="text-sm font-bold text-emerald-400">+$12.40</span></div>
+        // Real Kelly output for the calculator preview
+        const overallWinRate = totalBets > 0 ? completedBets.filter(b => b.result === 'win').length / totalBets : 0.5;
+        const avgOdds = totalBets > 0 ? completedBets.reduce((s, b) => s + Number(b.odds), 0) / totalBets : -110;
+        const effectiveBankroll = bankroll > 0 ? bankroll : 1000;
+        const kellyResult = calculateKelly(avgOdds, overallWinRate, effectiveBankroll);
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+            {/* Bet Correlations — locked */}
+            <div className="relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-slideUp">
+              <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+                <GitBranch className="w-4 h-4 text-violet-400" />
+                <h3 className="text-sm font-bold text-white">Bet Correlations</h3>
+                <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full ml-auto">PRO</span>
+              </div>
+              <div className="p-4 blur-[6px] select-none pointer-events-none">
+                <div className="space-y-3">
+                  {corrRows.length > 0 ? corrRows.map((row, i) => (
+                    <div key={i} className="flex justify-between">
+                      <span className="text-sm text-slate-400">{row.label}</span>
+                      <span className={`text-sm font-bold ${row.winRate >= 50 ? 'text-emerald-400' : 'text-rose-400'}`}>{row.winRate}% win rate</span>
+                    </div>
+                  )) : (
+                    <>
+                      <div className="flex justify-between"><span className="text-sm text-slate-400">Need more bets</span><span className="text-sm font-bold text-slate-500">—</span></div>
+                      <div className="flex justify-between"><span className="text-sm text-slate-400">for pattern analysis</span><span className="text-sm font-bold text-slate-500">—</span></div>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="absolute inset-0 top-12 flex flex-col items-center justify-center">
+                <Lock className="w-5 h-5 text-slate-400 mb-2" />
+                <span className="text-xs font-bold text-slate-400 mb-2">Find patterns in your wins</span>
+                <button
+                  onClick={onOpenPremium}
+                  className="flex items-center gap-1.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-amber-400 hover:to-orange-400 transition-all"
+                >
+                  <Crown className="w-3 h-3" /> Unlock with Pro
+                </button>
+              </div>
+            </div>
+
+            {/* Optimal Stake Calculator — locked */}
+            <div className="relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-slideUp">
+              <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+                <Calculator className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-bold text-white">Optimal Stake Calculator</h3>
+                <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full ml-auto">PRO</span>
+              </div>
+              <div className="p-4 blur-[6px] select-none pointer-events-none">
+                <div className="space-y-3">
+                  <div className="flex justify-between"><span className="text-sm text-slate-400">Recommended stake</span><span className="text-sm font-bold text-white">${kellyResult.recommendedStake.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-sm text-slate-400">Kelly fraction</span><span className="text-sm font-bold text-white">{(kellyResult.fraction * 100).toFixed(1)}%</span></div>
+                  <div className="flex justify-between"><span className="text-sm text-slate-400">Expected value</span><span className={`text-sm font-bold ${kellyResult.expectedValue >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{kellyResult.expectedValue >= 0 ? '+' : ''}${kellyResult.expectedValue.toFixed(2)}</span></div>
+                </div>
+              </div>
+              <div className="absolute inset-0 top-12 flex flex-col items-center justify-center">
+                <Lock className="w-5 h-5 text-slate-400 mb-2" />
+                <span className="text-xs font-bold text-slate-400 mb-2">Size bets with math, not gut</span>
+                <button
+                  onClick={onOpenPremium}
+                  className="flex items-center gap-1.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-amber-400 hover:to-orange-400 transition-all"
+                >
+                  <Crown className="w-3 h-3" /> Unlock with Pro
+                </button>
+              </div>
             </div>
           </div>
-          <div className="absolute inset-0 top-12 flex flex-col items-center justify-center">
-            <Lock className="w-5 h-5 text-slate-400 mb-2" />
-            <span className="text-xs font-bold text-slate-400 mb-2">Size bets with math, not gut</span>
-            <button
-              onClick={onOpenPremium}
-              className="flex items-center gap-1.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-amber-400 hover:to-orange-400 transition-all"
-            >
-              <Crown className="w-3 h-3" /> Unlock with Pro
-            </button>
-          </div>
-        </div>
-      </div>
+        );
+      })()}
     </div>
   );
 }

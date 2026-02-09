@@ -17,6 +17,7 @@ export default function Dashboard({
   pendingBets = [],
   plChart: PLChart,
   bankrollChart: BankrollChart,
+  opportunities,
 }) {
   const {
     profit, roi, winRate, wins, losses,
@@ -195,7 +196,7 @@ export default function Dashboard({
       {/* Market Edge */}
       {totalBets > 0 && (
         <div className="mb-5">
-          <MarketEdge onOpenPremium={onOpenPremium} />
+          <MarketEdge onOpenPremium={onOpenPremium} opportunities={opportunities} />
         </div>
       )}
 

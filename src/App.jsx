@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import { FullPageSpinner } from './components/LoadingSpinner';
 import Toast from './components/Toast';
@@ -14,8 +14,10 @@ import PLChart from './components/PLChart';
 import SportBreakdownChart from './components/SportBreakdownChart';
 import BankrollChart from './components/BankrollChart';
 import PremiumModal from './components/PremiumModal';
-import ComingSoon from './components/ComingSoon';
+import Leaderboard from './components/Leaderboard';
 import { calculateRank, detectArchetype, generatePsychHooks, getDetailedStreaks, getDayOfWeekStats } from './lib/ranks';
+import { fetchOdds, findEdges, formatMovements } from './lib/oddsApi';
+import { upsertProfile, fetchOwnProfile } from './lib/leaderboard';
 
 export default function BetTrackr() {
   const [user, setUser] = useState(null);
@@ -30,6 +32,15 @@ export default function BetTrackr() {
     const saved = localStorage.getItem('bettrackr_bankroll');
     return saved ? parseFloat(saved) : 0;
   });
+
+  // Odds API state
+  const [oddsData, setOddsData] = useState(null);
+  const [opportunities, setOpportunities] = useState(null);
+  const [liveMessages, setLiveMessages] = useState(null);
+
+  // Leaderboard state
+  const [userProfile, setUserProfile] = useState(null);
+  const profileSyncRef = useRef(null);
 
   const showToast = useCallback((message, type = 'error') => {
     setToast({ message, type });
@@ -82,10 +93,75 @@ export default function BetTrackr() {
     loadGutCalls();
   }, [user, showToast]);
 
+  // Fetch odds data on mount (if API key exists)
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_ODDS_API_KEY;
+    if (!apiKey) return;
+
+    fetchOdds(apiKey).then(data => {
+      if (data && data.length > 0) {
+        setOddsData(data);
+        setOpportunities(findEdges(data));
+        setLiveMessages(formatMovements(data));
+      }
+    }).catch(() => {});
+  }, []);
+
+  // Load user profile
+  const loadProfile = useCallback(async () => {
+    if (!user) return;
+    const { data } = await fetchOwnProfile(user.id);
+    setUserProfile(data);
+  }, [user]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  // Auto-sync profile when bets change
+  useEffect(() => {
+    if (!user || bets.length === 0) return;
+
+    // Debounce profile sync
+    if (profileSyncRef.current) clearTimeout(profileSyncRef.current);
+    profileSyncRef.current = setTimeout(async () => {
+      const completed = bets.filter(b => b.result !== 'pending');
+      const total = completed.length;
+      if (total === 0) return;
+
+      const w = completed.filter(b => b.result === 'win').length;
+      const staked = completed.reduce((s, b) => s + Number(b.stake), 0);
+      const payout = completed.reduce((s, b) => s + Number(b.payout), 0);
+      const p = payout - staked;
+      const r = staked > 0 ? ((p / staked) * 100) : 0;
+      const wr = total > 0 ? ((w / total) * 100) : 0;
+
+      const rank = calculateRank(total, wr, p);
+      const arch = detectArchetype(completed, wr, p);
+      const streaks = getDetailedStreaks(completed);
+
+      await upsertProfile(user.id, {
+        totalBets: total,
+        winRate: parseFloat(wr.toFixed(1)),
+        roi: parseFloat(r.toFixed(1)),
+        profit: parseFloat(p.toFixed(2)),
+        rankTier: rank?.tier || 'rookie',
+        archetype: arch || 'rookie',
+        bestStreak: streaks?.longestWin || 0,
+      });
+      loadProfile();
+    }, 2000);
+
+    return () => {
+      if (profileSyncRef.current) clearTimeout(profileSyncRef.current);
+    };
+  }, [user, bets, loadProfile]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setBets([]);
     setGutCalls([]);
+    setUserProfile(null);
   };
 
   // Computed stats
@@ -146,6 +222,8 @@ export default function BetTrackr() {
 
   const psychHooks = generatePsychHooks(completedBets, { totalMissedMoney, detailedStreaks }, rankInfo);
 
+  const currentBankroll = startingBankroll + profit;
+
   const stats = {
     profit, roi, winRate, wins, losses,
     totalBets, totalStaked, bestSport, streakInfo,
@@ -173,7 +251,10 @@ export default function BetTrackr() {
       archetype={archetype}
       user={user}
       pendingBets={pendingBets}
+      completedBets={completedBets}
+      bankroll={currentBankroll > 0 ? currentBankroll : startingBankroll}
       onOpenPremium={openPremium}
+      liveMessages={liveMessages}
     >
       {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
       {showPremiumModal && <PremiumModal onClose={() => setShowPremiumModal(false)} />}
@@ -199,6 +280,7 @@ export default function BetTrackr() {
           pendingBets={pendingBets}
           plChart={PLChart}
           bankrollChart={BankrollChart}
+          opportunities={opportunities}
         />
       )}
 
@@ -228,12 +310,20 @@ export default function BetTrackr() {
           sportBreakdownChart={SportBreakdownChart}
           dayOfWeekStats={dayOfWeekStats}
           onOpenPremium={openPremium}
+          bankroll={currentBankroll > 0 ? currentBankroll : startingBankroll}
         />
       )}
 
       {activeTab === 'share' && <ShareCard stats={stats} />}
 
-      {activeTab === 'community' && <ComingSoon feature="Community" />}
+      {activeTab === 'community' && (
+        <Leaderboard
+          user={user}
+          stats={stats}
+          profile={userProfile}
+          onProfileUpdate={loadProfile}
+        />
+      )}
     </Layout>
   );
 }

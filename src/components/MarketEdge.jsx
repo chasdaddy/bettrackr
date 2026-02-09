@@ -1,13 +1,15 @@
 import { Lock, TrendingUp, Zap } from 'lucide-react';
 
-const OPPORTUNITIES = [
+const FALLBACK_OPPORTUNITIES = [
   { event: 'Lakers vs Celtics', pick: 'Lakers ML', edge: '+4.2%', book: 'DraftKings', visible: true },
   { event: 'Chiefs vs Bills', pick: 'Chiefs -2.5', edge: '+3.8%', book: 'FanDuel', visible: true },
   { event: 'Djokovic vs Alcaraz', pick: 'Over 3.5 sets', edge: '+5.1%', book: 'BetMGM', visible: false },
   { event: 'Man City vs Arsenal', pick: 'BTTS Yes', edge: '+6.3%', book: 'Caesars', visible: false },
 ];
 
-export default function MarketEdge({ onOpenPremium }) {
+export default function MarketEdge({ onOpenPremium, opportunities }) {
+  const items = opportunities && opportunities.length > 0 ? opportunities : FALLBACK_OPPORTUNITIES;
+
   return (
     <div className="animate-slideUp">
       <div className="flex items-center justify-between mb-3">
@@ -15,11 +17,13 @@ export default function MarketEdge({ onOpenPremium }) {
           <TrendingUp className="w-4 h-4 text-emerald-400" />
           <h3 className="text-sm font-bold text-white">Market Edge</h3>
         </div>
-        <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">BETA</span>
+        <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">
+          {opportunities && opportunities.length > 0 ? 'LIVE' : 'BETA'}
+        </span>
       </div>
 
       <div className="space-y-2">
-        {OPPORTUNITIES.map((opp, i) => (
+        {items.map((opp, i) => (
           <div key={i} className="relative">
             <div className={`bg-slate-900 border border-slate-800 rounded-xl p-4 ${!opp.visible ? 'blur-[6px] select-none' : ''}`}>
               <div className="flex items-center justify-between mb-1">

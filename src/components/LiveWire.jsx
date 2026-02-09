@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Radio } from 'lucide-react';
 
-const MESSAGES = [
+const FALLBACK_MESSAGES = [
   { text: 'Lakers -3.5 moved to -4.5 at DraftKings', tag: 'NBA' },
   { text: 'Mahomes O285.5 yards seeing heavy action', tag: 'NFL' },
   { text: 'Djokovic ML dropped from -180 to -155', tag: 'Tennis' },
@@ -9,7 +9,8 @@ const MESSAGES = [
   { text: 'UFC 312 main event line reversing sharply', tag: 'UFC' },
 ];
 
-export default function LiveWire() {
+export default function LiveWire({ messages }) {
+  const items = messages && messages.length > 0 ? messages : FALLBACK_MESSAGES;
   const [index, setIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -17,14 +18,14 @@ export default function LiveWire() {
     const interval = setInterval(() => {
       setFade(false);
       setTimeout(() => {
-        setIndex(i => (i + 1) % MESSAGES.length);
+        setIndex(i => (i + 1) % items.length);
         setFade(true);
       }, 300);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [items.length]);
 
-  const msg = MESSAGES[index];
+  const msg = items[index % items.length];
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-4">
