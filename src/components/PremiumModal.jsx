@@ -20,8 +20,8 @@ export default function PremiumModal({ onClose }) {
     supabase
       .from('user_profiles')
       .select('id', { count: 'exact', head: true })
-      .then(({ count }) => {
-        if (count != null) setUserCount(count);
+      .then(res => {
+        if (res?.count != null) setUserCount(res.count);
       })
       .catch(() => {});
   }, []);
