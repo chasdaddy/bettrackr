@@ -78,7 +78,7 @@ export default function Layout({ activeTab, setActiveTab, streakInfo, onLogout, 
               </div>
               <div className={`whitespace-nowrap overflow-hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
                 <div className="text-xs font-bold text-white">{rankInfo.name}</div>
-                {archetype && <div className="text-[10px] text-slate-500">{archetype}</div>}
+                {archetype && <div className="text-[10px] text-slate-500">{archetype.name || archetype}</div>}
               </div>
             </div>
           )}
